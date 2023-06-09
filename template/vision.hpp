@@ -63,18 +63,38 @@ public:
 
 class VideoForImGui {
 
-private:
-
-
-
 public:
 	// OpenGL Texture 
 	GLuint imageTexture; // handle to texture`s (Texture ID)
-
 	// Image Data 
-	int my_image_width = 0;
-	int my_image_height = 0;
+	int image_width;
+	int image_height;
 
+
+	VideoForImGui() {
+		// Image Data 
+		image_width = 0;
+		image_height = 0;
+	}
+
+	void loadImage(char const* fileNamePath) {
+		unsigned char* image_data = stbi_load(fileNamePath, &image_width, &image_height, NULL, 4);
+		if (image_data != NULL) {
+			// Delete the previous texture if it exists
+			if (glIsTexture(imageTexture))
+				glDeleteTextures(1, &imageTexture);
+
+			glGenTextures(1, &imageTexture);
+			glBindTexture(GL_TEXTURE_2D, imageTexture);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+			stbi_image_free(image_data);
+		}
+	}
+	
 	/// <summary>
 	/// GPU memory Allocation for a picture
 	/// </summary>
@@ -98,24 +118,7 @@ public:
 		}
 	}
 
-	// load Image only once to GPU memory 
-	void loadImage(char const* fileNamePath) {
-		int image_width = 0;
-		int image_height = 0;
-		unsigned char* image_data = stbi_load(fileNamePath, &image_width, &image_height, NULL, 4);
-		if (image_data != NULL) {
-			glGenTextures(1, &imageTexture);
-			glBindTexture(GL_TEXTURE_2D, imageTexture);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-			stbi_image_free(image_data);
-			my_image_width = image_width;
-			my_image_height = image_height;
-		}
-	}
+
 
 	/// <summary>
 	/// Convert CV::Mat to texture, used in imGui
