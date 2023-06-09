@@ -10,14 +10,14 @@ public:
 
 	// Video frames
 	cv::Mat frame;
+	bool horizontalflip;
 
 	/// <summary>
 	/// Constructor sets web cam settings
 	/// </summary>
-	void init (int camera = 0) {
+	void init (int camera = 0, bool flip = false) {
 		// Initialize cam0 and cam1 objects
 		vid_capture = cv::VideoCapture(camera);  // Assuming cam0 is the first camera
-
 		if (!vid_capture.isOpened())
 		{
 			std::cout << "Error opening camera" << std::endl;
@@ -27,6 +27,7 @@ public:
 			vid_capture.set(cv::CAP_PROP_FRAME_WIDTH, frameWidth);
 			vid_capture.set(cv::CAP_PROP_FRAME_HEIGHT, frameHeight);
 			vid_capture.read(frame);
+			horizontalflip = flip;
 		}
 	}
 
@@ -36,12 +37,23 @@ public:
 		{
 			std::cout << "Error opening camera" << std::endl;
 		}
-		vid_capture.read(frame);
+		else if (!horizontalflip)
+		{
+			vid_capture.read(frame);
+		}
+		else {
+			vid_capture.read(frame);
+			cv::flip(frame, frame, flip_h); 
+		}
 	}
 
 	cv::Mat getFrame() {
 		readFrame();
 		return frame;
+	}
+
+	void reseize(int x,int y) {
+		cv::resize(frame, frame, cv::Size(x, y));
 	}
 
 	void showImage() {
@@ -53,7 +65,7 @@ public:
 		cv::imshow("Camera 0", frame);
 
 		// Wait for a key press (optional)
-		cv::waitKey(1);
+		cv::waitKey();
 	}
 	~CameraClass() {
 		vid_capture.release();
@@ -70,13 +82,12 @@ public:
 	int image_width;
 	int image_height;
 
-
 	VideoForImGui() {
 		// Image Data 
 		image_width = 0;
 		image_height = 0;
 	}
-
+	
 	void loadImage(char const* fileNamePath) {
 		unsigned char* image_data = stbi_load(fileNamePath, &image_width, &image_height, NULL, 4);
 		if (image_data != NULL) {
@@ -94,12 +105,11 @@ public:
 			stbi_image_free(image_data);
 		}
 	}
-	
+
 	/// <summary>
-	/// GPU memory Allocation for a picture
+	/// GPU memory Allocation for a picture or video frame
 	/// </summary>
 	/// <param name="image">image (single video frame)</param>
-	/// <param name="imageTexture">handel for GPU Allocated memory</param>
 	void initVideo (cv::Mat& image) {
 
 		if (image.empty()) {
@@ -117,8 +127,6 @@ public:
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		}
 	}
-
-
 
 	/// <summary>
 	/// Convert CV::Mat to texture, used in imGui
@@ -151,6 +159,28 @@ public:
 				GL_RGB,              // Input image format (i.e. GL_RGB, GL_RGBA, GL_BGR etc.)
 				GL_UNSIGNED_BYTE,    // Image data type
 				image.ptr());        // The actual image data itself
+		}
+	}
+
+	void resizeImage(int new_width, int new_height) {
+		if (new_width != image_width || new_height != image_height) {
+			image_width = new_width;
+			image_height = new_height;
+
+			// Delete the previous texture if it exists
+			if (glIsTexture(imageTexture)) {
+				glDeleteTextures(1, &imageTexture);
+				imageTexture = 0; // Reset the texture handle to 0
+			}
+
+			// Create a new texture with the updated size
+			glGenTextures(1, &imageTexture);
+			glBindTexture(GL_TEXTURE_2D, imageTexture);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		}
 	}
 

@@ -22,14 +22,17 @@ private:
 	CameraClass cam_access1;
 	VideoForImGui textureCam0;
 	VideoForImGui textureCam1;
+	PictDim last_frame_dimensions;
+
 	VideoForImGui image;
 	static const char* imageFilePath; // Declaration of static member variable
 	PictDim last_image_dimensions;
 
+
 public:
 	UseImGui() {
 		// webcam
-		cam_access0.init(cam0);
+		cam_access0.init(cam0, true);
 		textureCam0.initVideo(cam_access0.frame);
 
 		// Picture
@@ -63,16 +66,22 @@ public:
 
 		// Webcam frames
 		cam_access0.readFrame();
-		textureCam0.BindCVMat2GLTexture(cam_access0.frame);
+		
 		// Show video cam0
 		ImGui::Begin("cam0");
+		ImGui::Checkbox("Horizontal flip", &cam_access0.horizontalflip);
+		ImGui::SameLine;
+		ImGui::Text("    FPS: %.2f    ", ImGui::GetIO().Framerate); // Framerate
+		ImGui::SameLine();
 		ImGui::Text("pointer = %p", textureCam0.imageTexture);
+		ImGui::SameLine();
 		ImGui::Text("size = %d x %d", frameWidth, frameHeight);
 		ImGui::Image((void*)(intptr_t)textureCam0.imageTexture, ImVec2(frameWidth, frameHeight));
 		ImGui::End();
 
 		// Show picture ()
 		ImGui::Begin("Picture");
+		textureCam0.BindCVMat2GLTexture(cam_access0.frame);
 		ImVec2 window_Size_picture = ImGui::GetWindowSize() - ImGui::GetWindowContentRegionMin();
 		if (window_Size_picture.x != last_image_dimensions.x || window_Size_picture.y != last_image_dimensions.y) {
 			image.image_width = window_Size_picture.x;
