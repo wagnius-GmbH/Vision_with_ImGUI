@@ -42,6 +42,8 @@ int main()
 	myimgui.Init(window, glsl_version);
 	cout << "ImGui running" << endl;
 
+	CameraClass cam_acces0;
+
 	// ImGui update
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();

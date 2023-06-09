@@ -21,15 +21,23 @@ using namespace std;
 // implot
 #include <implot.h>
 
-///////////////////////////////////////////
-//  Enum`s
-///////////////////////////////////////////
 
-enum resolution
-{
-    windowWidth = 1920,
-    windowHeight = 1080
-};
+// opencv dependencies 
+#include <opencv2/opencv.hpp>
+/*
+#include <opencv2/calib3d.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include "opencv2/imgcodecs.hpp"
+*/
+
+// loading pictures to memory 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+
+#include "Enum.h"
 
 
 // Suppress Visual Studio warnings

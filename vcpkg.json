@@ -9,6 +9,8 @@
     },
     "glfw3",
     "glad",
-    "implot"
+    "implot",
+    "opencv",
+    "stb"
   ]
 }
