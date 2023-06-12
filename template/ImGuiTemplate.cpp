@@ -9,8 +9,10 @@
 /// ImGui Template 
 /// </summary>
 /// <returns>int</returns>
-int main()
+int main(int argc, const char** argv)
 {
+	facedetection( argc, argv);
+
 	// Setup window
 	if (!glfwInit())
 	{
