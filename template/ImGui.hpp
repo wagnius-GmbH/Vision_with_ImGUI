@@ -4,7 +4,7 @@
 
 struct PictDim {
 	int  x, y;
-	constexpr PictDim() : x(0.0f), y(0.0f) { }
+	constexpr PictDim() : x(0), y(0) { }
 	constexpr PictDim(int _x, int _y) : x(_x), y(_y) { }
 	int& operator[] (size_t idx) { IM_ASSERT(idx == 0 || idx == 1); return ((int*)(void*)(char*)this)[idx]; } // We very rarely use this [] operator, so the assert overhead is fine.
 	int  operator[] (size_t idx) const { IM_ASSERT(idx == 0 || idx == 1); return ((const int*)(const void*)(const char*)this)[idx]; }
@@ -84,11 +84,11 @@ public:
 		textureCam0.BindCVMat2GLTexture(cam_access0.frame);
 		ImVec2 window_Size_picture = ImGui::GetWindowSize() - ImGui::GetWindowContentRegionMin();
 		if (window_Size_picture.x != last_image_dimensions.x || window_Size_picture.y != last_image_dimensions.y) {
-			image.image_width = window_Size_picture.x;
-			image.image_height = window_Size_picture.y;
+			image.image_width  = int(window_Size_picture.x);
+			image.image_height = int(window_Size_picture.y);
 			image.loadImage(imageFilePath);
-			last_image_dimensions.x = window_Size_picture.x;
-			last_image_dimensions.y = window_Size_picture.y;
+			last_image_dimensions.x = int(window_Size_picture.x);
+			last_image_dimensions.y = int(window_Size_picture.y);
 		}
 
 		ImGui::Text("pointer = %p", image.imageTexture);

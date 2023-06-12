@@ -5,7 +5,21 @@
 # Fügen Sie der ausführbaren Datei dieses Projekts eine Quelle hinzu.
 add_executable (${PROJECT_NAME} "ImGuiTemplate.cpp"  "header.h" "ImGui.hpp" "Enum.h" "Vision.hpp")
 
-# TODO: Fügen Sie bei Bedarf Tests hinzu, und installieren Sie Ziele.
+
+message("************************************")
+message("vcpkg root = ${CMAKE_MSVC_RUNTIME_LIBRARY}")
+message("************************************\n")
+
+
+# Install Logos/icons
+message("************************************")
+message("Image source = ${CMAKE_CURRENT_SOURCE_DIR}/Picts/wagnius.png")
+message("Image destiantion = ${CMAKE_CURRENT_BINARY_DIR}/picts/wagnius.png")
+message("************************************\n************************************")
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/picts/wagnius.png  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/picts)
+
+
 # ImGui dependecies 
 find_package(glad CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad::glad)

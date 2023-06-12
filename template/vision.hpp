@@ -216,12 +216,12 @@ static void help(const char** argv)
 		"During execution:\n\tHit any key to quit.\n"
 		"\tUsing OpenCV version " << CV_VERSION << "\n" << endl;
 }
+
 void detectAndDraw(cv::Mat& img, cv::CascadeClassifier& cascade,
 	cv::CascadeClassifier& nestedCascade,
 	double scale, bool tryflip);
 string cascadeName;
 string nestedCascadeName;
-
 
 int facedetection(int argc, const char** argv)
 {
@@ -349,6 +349,7 @@ int facedetection(int argc, const char** argv)
 	}
 	return 0;
 }
+
 void detectAndDraw(cv::Mat& img, cv::CascadeClassifier& cascade,
 	cv::CascadeClassifier& nestedCascade,
 	double scale, bool tryflip)
