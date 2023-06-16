@@ -60,11 +60,11 @@ public:
 
 	void showImage() {
 		cv::Mat frame;
-		// Capture frames from cam0 and cam1
+		// Capture frames from cam
 		vid_capture >> frame;
 
 		// Display frames
-		cv::imshow("Camera 0", frame);
+		cv::imshow("Camera", frame);
 
 		// Wait for a key press (optional)
 		cv::waitKey();
@@ -189,8 +189,6 @@ public:
 	}
 };
 
-
-
 #include "opencv2/objdetect.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
@@ -203,154 +201,142 @@ public:
 void detectAndDraw(cv::Mat& img, cv::CascadeClassifier& cascade,
 	cv::CascadeClassifier& nestedCascade,
 	double scale, bool tryflip);
-string cascadeName;
-string nestedCascadeName;
 
-int facedetection()
-{
-	cv::VideoCapture capture;
-	cv::Mat frame, image;
-	string inputName;
-	bool tryflip;
-	cv::CascadeClassifier cascade, nestedCascade;
-	double scale;
-	
-	cascadeName = "Vision/haarcascade_frontalface_alt.xml";
-	nestedCascadeName = "Vision/haarcascade_eye_tree_eyeglasses.xml";
-	scale = 1;
-	tryflip = false;
-	
-	if (!nestedCascade.load(cv::samples::findFileOrKeep(nestedCascadeName)))
-		cerr << "WARNING: Could not load classifier cascade for nested objects" << endl;
-	if (!cascade.load(cv::samples::findFile(cascadeName)))
+class facedetection {
+
+public:
+	facedetection()
 	{
-		cerr << "ERROR: Could not load classifier cascade" << endl;
-		return -1;
-	}
-	if (inputName.empty() || (isdigit(inputName[0]) && inputName.size() == 1))
-	{
-		int camera = inputName.empty() ? 0 : inputName[0] - '0';
-		if (!capture.open(camera))
+		cv::VideoCapture capture;
+		cv::Mat frame, image;
+		string inputName;
+		bool tryflip;
+		cv::CascadeClassifier cascade, nestedCascade;
+		double scale;
+
+		string cascadeName = "Vision/haarcascade_frontalface_alt.xml";
+		string nestedCascadeName = "Vision/haarcascade_eye_tree_eyeglasses.xml";
+		scale = 1;
+		tryflip = false;
+
+		if (!nestedCascade.load(cv::samples::findFileOrKeep(nestedCascadeName)))
+			cerr << "WARNING: Could not load classifier cascade for nested objects" << endl;
+		if (!cascade.load(cv::samples::findFile(cascadeName)))
 		{
-			cout << "Capture from camera #" << camera << " didn't work" << endl;
-			return 1;
+			cerr << "ERROR: Could not load classifier cascade" << endl;
 		}
-	}
-	else if (!inputName.empty())
-	{
-		image = cv::imread(cv::samples::findFileOrKeep(inputName), cv::IMREAD_COLOR);
-		if (image.empty())
+
+		if (inputName.empty() || (isdigit(inputName[0]) && inputName.size() == 1))
 		{
-			if (!capture.open(cv::samples::findFileOrKeep(inputName)))
+			int camera = inputName.empty() ? 0 : inputName[0] - '0';
+			if (!capture.open(camera))
 			{
-				cout << "Could not read " << inputName << endl;
-				return 1;
+				cout << "Capture from camera #" << camera << " didn't work" << endl;
+			}
+		}
+
+		if (capture.isOpened())
+		{
+			cout << "Video capturing has been started ..." << endl;
+			for (;;)
+			{
+				capture >> frame;
+				if (frame.empty())
+					break;
+				cv::Mat frame1 = frame.clone();
+				detectAndDraw(frame1, cascade, nestedCascade, scale, tryflip);
+				char c = (char)cv::waitKey(10);
+				if (c == 27 || c == 'q' || c == 'Q')
+					break;
 			}
 		}
 	}
 
-	if (capture.isOpened())
+	void detectAndDraw(cv::Mat& img, cv::CascadeClassifier& cascade,
+		cv::CascadeClassifier& nestedCascade,
+		double scale, bool tryflip)
 	{
-		cout << "Video capturing has been started ..." << endl;
-		for (;;)
+		double t = 0;
+		vector<cv::Rect> faces, faces2;
+		const static cv::Scalar colors[] =
 		{
-			capture >> frame;
-			if (frame.empty())
-				break;
-			cv::Mat frame1 = frame.clone();
-			detectAndDraw(frame1, cascade, nestedCascade, scale, tryflip);
-			char c = (char)cv::waitKey(10);
-			if (c == 27 || c == 'q' || c == 'Q')
-				break;
-		}
-	}
-	return 0;
-}
-
-void detectAndDraw(cv::Mat& img, cv::CascadeClassifier& cascade,
-	cv::CascadeClassifier& nestedCascade,
-	double scale, bool tryflip)
-{
-	double t = 0;
-	vector<cv::Rect> faces, faces2;
-	const static cv::Scalar colors[] =
-	{
-		cv::Scalar(255,0,0),
-		cv::Scalar(255,128,0),
-		cv::Scalar(255,255,0),
-		cv::Scalar(0,255,0),
-		cv::Scalar(0,128,255),
-		cv::Scalar(0,255,255),
-		cv::Scalar(0,0,255),
-		cv::Scalar(255,0,255)
-	};
-	cv::Mat gray, smallImg;
-	cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-	double fx = 1 / scale;
-	resize(gray, smallImg, cv::Size(), fx, fx, cv::INTER_LINEAR_EXACT);
-	equalizeHist(smallImg, smallImg);
-	t = (double)cv::getTickCount();
-	cascade.detectMultiScale(smallImg, faces,
-		1.1, 2, 0
-		//|CASCADE_FIND_BIGGEST_OBJECT
-		//|CASCADE_DO_ROUGH_SEARCH
-		| cv::CASCADE_SCALE_IMAGE,
-		cv::Size(30, 30));
-	if (tryflip)
-	{
-		flip(smallImg, smallImg, 1);
-		cascade.detectMultiScale(smallImg, faces2,
+			cv::Scalar(255,0,0),
+			cv::Scalar(255,128,0),
+			cv::Scalar(255,255,0),
+			cv::Scalar(0,255,0),
+			cv::Scalar(0,128,255),
+			cv::Scalar(0,255,255),
+			cv::Scalar(0,0,255),
+			cv::Scalar(255,0,255)
+		};
+		cv::Mat gray, smallImg;
+		cvtColor(img, gray, cv::COLOR_BGR2GRAY);
+		double fx = 1 / scale;
+		resize(gray, smallImg, cv::Size(), fx, fx, cv::INTER_LINEAR_EXACT);
+		equalizeHist(smallImg, smallImg);
+		t = (double)cv::getTickCount();
+		cascade.detectMultiScale(smallImg, faces,
 			1.1, 2, 0
 			//|CASCADE_FIND_BIGGEST_OBJECT
 			//|CASCADE_DO_ROUGH_SEARCH
 			| cv::CASCADE_SCALE_IMAGE,
 			cv::Size(30, 30));
-		for (vector<cv::Rect>::const_iterator r = faces2.begin(); r != faces2.end(); ++r)
+		if (tryflip)
 		{
-			faces.push_back(cv::Rect(smallImg.cols - r->x - r->width, r->y, r->width, r->height));
+			flip(smallImg, smallImg, 1);
+			cascade.detectMultiScale(smallImg, faces2,
+				1.1, 2, 0
+				//|CASCADE_FIND_BIGGEST_OBJECT
+				//|CASCADE_DO_ROUGH_SEARCH
+				| cv::CASCADE_SCALE_IMAGE,
+				cv::Size(30, 30));
+			for (vector<cv::Rect>::const_iterator r = faces2.begin(); r != faces2.end(); ++r)
+			{
+				faces.push_back(cv::Rect(smallImg.cols - r->x - r->width, r->y, r->width, r->height));
+			}
 		}
+		t = (double)cv::getTickCount() - t;
+		printf("detection time = %g ms\n", t * 1000 / cv::getTickFrequency());
+		for (size_t i = 0; i < faces.size(); i++)
+		{
+			cv::Rect r = faces[i];
+			cv::Mat smallImgROI;
+			vector<cv::Rect> nestedObjects;
+			cv::Point center;
+			cv::Scalar color = colors[i % 8];
+			int radius;
+			double aspect_ratio = (double)r.width / r.height;
+			if (0.75 < aspect_ratio && aspect_ratio < 1.3)
+			{
+				center.x = cvRound((r.x + r.width * 0.5) * scale);
+				center.y = cvRound((r.y + r.height * 0.5) * scale);
+				radius = cvRound((r.width + r.height) * 0.25 * scale);
+				circle(img, center, radius, color, 3, 8, 0);
+			}
+			else
+				rectangle(img, cv::Point(cvRound(r.x * scale), cvRound(r.y * scale)),
+					cv::Point(cvRound((r.x + r.width - 1) * scale), cvRound((r.y + r.height - 1) * scale)),
+					color, 3, 8, 0);
+			if (nestedCascade.empty())
+				continue;
+			smallImgROI = smallImg(r);
+			nestedCascade.detectMultiScale(smallImgROI, nestedObjects,
+				1.1, 2, 0
+				//|CASCADE_FIND_BIGGEST_OBJECT
+				//|CASCADE_DO_ROUGH_SEARCH
+				//|CASCADE_DO_CANNY_PRUNING
+				| cv::CASCADE_SCALE_IMAGE,
+				cv::Size(30, 30));
+			for (size_t j = 0; j < nestedObjects.size(); j++)
+			{
+				cv::Rect nr = nestedObjects[j];
+				center.x = cvRound((r.x + nr.x + nr.width * 0.5) * scale);
+				center.y = cvRound((r.y + nr.y + nr.height * 0.5) * scale);
+				radius = cvRound((nr.width + nr.height) * 0.25 * scale);
+				circle(img, center, radius, color, 3, 8, 0);
+			}
+		}
+		imshow("result", img);
 	}
-	t = (double)cv::getTickCount() - t;
-	printf("detection time = %g ms\n", t * 1000 / cv::getTickFrequency());
-	for (size_t i = 0; i < faces.size(); i++)
-	{
-		cv::Rect r = faces[i];
-		cv::Mat smallImgROI;
-		vector<cv::Rect> nestedObjects;
-		cv::Point center;
-		cv::Scalar color = colors[i % 8];
-		int radius;
-		double aspect_ratio = (double)r.width / r.height;
-		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
-		{
-			center.x = cvRound((r.x + r.width * 0.5) * scale);
-			center.y = cvRound((r.y + r.height * 0.5) * scale);
-			radius = cvRound((r.width + r.height) * 0.25 * scale);
-			circle(img, center, radius, color, 3, 8, 0);
-		}
-		else
-			rectangle(img, cv::Point(cvRound(r.x * scale), cvRound(r.y * scale)),
-				cv::Point(cvRound((r.x + r.width - 1) * scale), cvRound((r.y + r.height - 1) * scale)),
-				color, 3, 8, 0);
-		if (nestedCascade.empty())
-			continue;
-		smallImgROI = smallImg(r);
-		nestedCascade.detectMultiScale(smallImgROI, nestedObjects,
-			1.1, 2, 0
-			//|CASCADE_FIND_BIGGEST_OBJECT
-			//|CASCADE_DO_ROUGH_SEARCH
-			//|CASCADE_DO_CANNY_PRUNING
-			| cv::CASCADE_SCALE_IMAGE,
-			cv::Size(30, 30));
-		for (size_t j = 0; j < nestedObjects.size(); j++)
-		{
-			cv::Rect nr = nestedObjects[j];
-			center.x = cvRound((r.x + nr.x + nr.width * 0.5) * scale);
-			center.y = cvRound((r.y + nr.y + nr.height * 0.5) * scale);
-			radius = cvRound((nr.width + nr.height) * 0.25 * scale);
-			circle(img, center, radius, color, 3, 8, 0);
-		}
-	}
-	imshow("result", img);
-}
+};
 

@@ -11,7 +11,7 @@
 /// <returns>int</returns>
 int main(int argc, const char** argv)
 {
-	facedetection();
+	facedetection test;
 
 	// Setup window
 	if (!glfwInit())
