@@ -11,7 +11,6 @@
 /// <returns>int</returns>
 int main(int argc, const char** argv)
 {
-	facedetection test;
 
 	// Setup window
 	if (!glfwInit())
@@ -43,8 +42,6 @@ int main(int argc, const char** argv)
 	UseImGui myimgui;
 	myimgui.Init(window, glsl_version);
 	cout << "ImGui running" << endl;
-
-	CameraClass cam_acces0;
 
 	// ImGui update
 	while (!glfwWindowShouldClose(window)) {

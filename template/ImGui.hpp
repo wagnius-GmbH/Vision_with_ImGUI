@@ -18,26 +18,33 @@ struct PictDim {
 /// </summary>
 class UseImGui {
 private:
-	CameraClass cam_access0;
-	CameraClass cam_access1;
+
 	VideoForImGui textureCam0;
 	VideoForImGui textureCam1;
-	PictDim last_frame_dimensions;
 
-	VideoForImGui image;
 	static const char* imageFilePath; // Declaration of static member variable
+	
+	VideoForImGui image;
+	PictDim last_frame_dimensions;
 	PictDim last_image_dimensions;
+
+	facedetection facedetectionCam0;
 
 
 public:
+
+	CameraClass cam_access0;
+	CameraClass cam_access1;
+
 	UseImGui() {
 		// webcam
-		cam_access0.init(cam0, true);
+		cam_access0.init(cam0);
 		textureCam0.initVideo(cam_access0.frame);
 
 		// Picture
-		//last_image_dimensions(0,0);
 		image.loadImage(imageFilePath);
+
+		//facedetectionCam0.runInfinitFaceDetection(cam_access0);
 	}
 
 	void Init(GLFWwindow* window, const char* glsl_version) {
@@ -66,7 +73,8 @@ public:
 
 		// Webcam frames
 		cam_access0.readFrame();
-		
+		// Vision
+		facedetectionCam0.detectAndDraw(cam_access0.frame);
 		// Show video cam0
 		ImGui::Begin("cam0");
 		ImGui::Checkbox("Horizontal flip", &cam_access0.horizontalflip);

@@ -30,6 +30,7 @@ public:
 			vid_capture.set(cv::CAP_PROP_FRAME_HEIGHT, frameHeight);
 			vid_capture.read(frame);
 			horizontalflip = flip;
+			readFrame();
 		}
 	}
 
@@ -194,28 +195,25 @@ public:
 #include "opencv2/imgproc.hpp"
 #include "opencv2/videoio.hpp"
 #include <iostream>
-//using namespace std;
-//using namespace cv;
 
-
-void detectAndDraw(cv::Mat& img, cv::CascadeClassifier& cascade,
-	cv::CascadeClassifier& nestedCascade,
-	double scale, bool tryflip);
 
 class facedetection {
+private:
+	cv::CascadeClassifier cascade, nestedCascade;
+	double scale;
+	bool tryflip;
+	string cascadeName;
+	string nestedCascadeName;
+
 
 public:
+
+	cv::Point center;
+
 	facedetection()
 	{
-		cv::VideoCapture capture;
-		cv::Mat frame, image;
-		string inputName;
-		bool tryflip;
-		cv::CascadeClassifier cascade, nestedCascade;
-		double scale;
-
-		string cascadeName = "Vision/haarcascade_frontalface_alt.xml";
-		string nestedCascadeName = "Vision/haarcascade_eye_tree_eyeglasses.xml";
+		cascadeName = "Vision/haarcascade_frontalface_alt.xml";
+		nestedCascadeName = "Vision/haarcascade_eye_tree_eyeglasses.xml";
 		scale = 1;
 		tryflip = false;
 
@@ -225,36 +223,10 @@ public:
 		{
 			cerr << "ERROR: Could not load classifier cascade" << endl;
 		}
-
-		if (inputName.empty() || (isdigit(inputName[0]) && inputName.size() == 1))
-		{
-			int camera = inputName.empty() ? 0 : inputName[0] - '0';
-			if (!capture.open(camera))
-			{
-				cout << "Capture from camera #" << camera << " didn't work" << endl;
-			}
-		}
-
-		if (capture.isOpened())
-		{
-			cout << "Video capturing has been started ..." << endl;
-			for (;;)
-			{
-				capture >> frame;
-				if (frame.empty())
-					break;
-				cv::Mat frame1 = frame.clone();
-				detectAndDraw(frame1, cascade, nestedCascade, scale, tryflip);
-				char c = (char)cv::waitKey(10);
-				if (c == 27 || c == 'q' || c == 'Q')
-					break;
-			}
-		}
 	}
 
-	void detectAndDraw(cv::Mat& img, cv::CascadeClassifier& cascade,
-		cv::CascadeClassifier& nestedCascade,
-		double scale, bool tryflip)
+
+	void detectAndDraw(cv::Mat& img)
 	{
 		double t = 0;
 		vector<cv::Rect> faces, faces2;
@@ -286,8 +258,8 @@ public:
 			flip(smallImg, smallImg, 1);
 			cascade.detectMultiScale(smallImg, faces2,
 				1.1, 2, 0
-				//|CASCADE_FIND_BIGGEST_OBJECT
-				//|CASCADE_DO_ROUGH_SEARCH
+				//| cv::CASCADE_FIND_BIGGEST_OBJECT
+				//| cv::CASCADE_DO_ROUGH_SEARCH
 				| cv::CASCADE_SCALE_IMAGE,
 				cv::Size(30, 30));
 			for (vector<cv::Rect>::const_iterator r = faces2.begin(); r != faces2.end(); ++r)
@@ -295,14 +267,15 @@ public:
 				faces.push_back(cv::Rect(smallImg.cols - r->x - r->width, r->y, r->width, r->height));
 			}
 		}
-		t = (double)cv::getTickCount() - t;
-		printf("detection time = %g ms\n", t * 1000 / cv::getTickFrequency());
+				
+		cv::putText(img, "text", cv::Point(50, 50), cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 255, 0), 2, false);
+
 		for (size_t i = 0; i < faces.size(); i++)
 		{
 			cv::Rect r = faces[i];
 			cv::Mat smallImgROI;
 			vector<cv::Rect> nestedObjects;
-			cv::Point center;
+			
 			cv::Scalar color = colors[i % 8];
 			int radius;
 			double aspect_ratio = (double)r.width / r.height;
@@ -322,9 +295,9 @@ public:
 			smallImgROI = smallImg(r);
 			nestedCascade.detectMultiScale(smallImgROI, nestedObjects,
 				1.1, 2, 0
-				//|CASCADE_FIND_BIGGEST_OBJECT
-				//|CASCADE_DO_ROUGH_SEARCH
-				//|CASCADE_DO_CANNY_PRUNING
+				//| cv::CASCADE_FIND_BIGGEST_OBJECT
+				//| cv::CASCADE_DO_ROUGH_SEARCH
+				//| cv::CASCADE_DO_CANNY_PRUNING
 				| cv::CASCADE_SCALE_IMAGE,
 				cv::Size(30, 30));
 			for (size_t j = 0; j < nestedObjects.size(); j++)
@@ -336,7 +309,6 @@ public:
 				circle(img, center, radius, color, 3, 8, 0);
 			}
 		}
-		imshow("result", img);
 	}
 };
 
