@@ -36,6 +36,8 @@ public:
 	CameraClass cam_access0;
 	CameraClass cam_access1;
 
+	ImVector<ImPlotPoint> facePos;
+
 	UseImGui() {
 		// webcam
 		cam_access0.init(cam0);
@@ -75,6 +77,27 @@ public:
 		cam_access0.readFrame();
 		// Vision
 		facedetectionCam0.detectAndDraw(cam_access0.frame);
+
+		// trace face detection
+		facePos.push_back(ImPlotPoint(double(facedetectionCam0.center.x), -double(facedetectionCam0.center.y)));
+		if (facePos.size() > 20) {
+			facePos.erase(facePos.begin());
+		}
+
+		// Show detected facedetection in Plot
+		ImGui::Begin("Facedetection");
+		ImPlot::BeginPlot("Detection Results");
+		ImPlot::SetupAxesLimits(0, double(frameWidth),0, -double(frameHeight));
+
+		for (int ii = 0; ii < facePos.size(); ii++)
+		{
+			ImPlot::PlotScatter("Point", &facePos[ii].x, &facePos[ii].y, 1);
+		}
+		
+		ImPlot::EndPlot();
+		ImGui::End();
+		
+
 		// Show video cam0
 		ImGui::Begin("cam0");
 		ImGui::Checkbox("Horizontal flip", &cam_access0.horizontalflip);
