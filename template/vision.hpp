@@ -223,7 +223,7 @@ void detectAndDraw(cv::Mat& img, cv::CascadeClassifier& cascade,
 string cascadeName;
 string nestedCascadeName;
 
-int facedetection(int argc, const char** argv)
+int facedetection()
 {
 	cv::VideoCapture capture;
 	cv::Mat frame, image;
@@ -231,35 +231,17 @@ int facedetection(int argc, const char** argv)
 	bool tryflip;
 	cv::CascadeClassifier cascade, nestedCascade;
 	double scale;
-	cv::CommandLineParser parser(argc, argv,
-		"{help h||}"
-		"{cascade| Vision/haarcascade_frontalface_alt.xml|}"
-		"{nested-cascade| Vision/haarcascade_eye_tree_eyeglasses.xml|}"
-		"{scale|1|}{try-flip||}{@filename||}"
-	);
-	if (parser.has("help"))
-	{
-		help(argv);
-		return 0;
-	}
-	cascadeName = parser.get<string>("cascade");
-	nestedCascadeName = parser.get<string>("nested-cascade");
-	scale = parser.get<double>("scale");
-	if (scale < 1)
-		scale = 1;
-	tryflip = parser.has("try-flip");
-	inputName = parser.get<string>("@filename");
-	if (!parser.check())
-	{
-		parser.printErrors();
-		return 0;
-	}
+	
+	cascadeName = "Vision/haarcascade_frontalface_alt.xml";
+	nestedCascadeName = "Vision/haarcascade_eye_tree_eyeglasses.xml";
+	scale = 1;
+	tryflip = false;
+	
 	if (!nestedCascade.load(cv::samples::findFileOrKeep(nestedCascadeName)))
 		cerr << "WARNING: Could not load classifier cascade for nested objects" << endl;
 	if (!cascade.load(cv::samples::findFile(cascadeName)))
 	{
 		cerr << "ERROR: Could not load classifier cascade" << endl;
-		help(argv);
 		return -1;
 	}
 	if (inputName.empty() || (isdigit(inputName[0]) && inputName.size() == 1))
