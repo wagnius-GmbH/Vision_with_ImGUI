@@ -248,15 +248,7 @@ int facedetection()
 			}
 		}
 	}
-	else
-	{
-		image = cv::imread(cv::samples::findFile("lena.jpg"), cv::IMREAD_COLOR);
-		if (image.empty())
-		{
-			cout << "Couldn't read lena.jpg" << endl;
-			return 1;
-		}
-	}
+
 	if (capture.isOpened())
 	{
 		cout << "Video capturing has been started ..." << endl;
@@ -270,46 +262,6 @@ int facedetection()
 			char c = (char)cv::waitKey(10);
 			if (c == 27 || c == 'q' || c == 'Q')
 				break;
-		}
-	}
-	else
-	{
-		cout << "Detecting face(s) in " << inputName << endl;
-		if (!image.empty())
-		{
-			detectAndDraw(image, cascade, nestedCascade, scale, tryflip);
-			cv::waitKey(0);
-		}
-		else if (!inputName.empty())
-		{
-			/* assume it is a text file containing the
-			list of the image filenames to be processed - one per line */
-			FILE* f = fopen(inputName.c_str(), "rt");
-			if (f)
-			{
-				char buf[1000 + 1];
-				while (fgets(buf, 1000, f))
-				{
-					int len = (int)strlen(buf);
-					while (len > 0 && isspace(buf[len - 1]))
-						len--;
-					buf[len] = '\0';
-					cout << "file " << buf << endl;
-					image = cv::imread(buf, cv::IMREAD_COLOR);
-					if (!image.empty())
-					{
-						detectAndDraw(image, cascade, nestedCascade, scale, tryflip);
-						char c = (char)cv::waitKey(0);
-						if (c == 27 || c == 'q' || c == 'Q')
-							break;
-					}
-					else
-					{
-						cerr << "Aw snap, couldn't read image " << buf << endl;
-					}
-				}
-				fclose(f);
-			}
 		}
 	}
 	return 0;
