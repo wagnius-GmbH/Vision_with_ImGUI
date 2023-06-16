@@ -7,6 +7,12 @@ add_executable (${PROJECT_NAME} "ImGuiTemplate.cpp"  "header.h" "ImGui.hpp" "Enu
 
 
 message("************************************")
+message("CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}")
+message("************************************\n")
+
+message("${PROJECT_SOURCE_DIR}")
+
+message("************************************")
 message("vcpkg root = ${CMAKE_MSVC_RUNTIME_LIBRARY}")
 message("************************************\n")
 
@@ -15,6 +21,10 @@ message("************************************\n")
 message("************************************")
 message("Image source = ${CMAKE_CURRENT_SOURCE_DIR}/Picts/wagnius.png")
 message("Image destiantion = ${CMAKE_CURRENT_BINARY_DIR}/picts/wagnius.png")
+
+message("Image source = ${CMAKE_CURRENT_SOURCE_DIR}/Vision/")
+message("Image destiantion = ${CMAKE_CURRENT_BINARY_DIR}/Vision")
+
 message("************************************\n************************************")
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/picts/wagnius.png  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/picts)
