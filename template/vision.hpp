@@ -258,13 +258,16 @@ public:
 			cv::Size(30, 30));
 
 		// find eyes for the faces			
+
+		int choose_face = 0;
+
 		for (size_t i = 0; i < faces.size(); i++)
 		{
 			cv::Rect r = faces[i];
 			cv::Mat smallImgROI;
 			vector<cv::Rect> nestedObjects;
 			
-			cv::Scalar color = colors[i % 8];
+			cv::Scalar color = colors[choose_face % 8];
 			int radius;
 			double aspect_ratio = (double)r.width / r.height;
 			if (0.75 < aspect_ratio && aspect_ratio < 1.3)
@@ -274,10 +277,12 @@ public:
 				radius = cvRound((r.width + r.height) * 0.25 * scale);
 
 			}
-			else
+			else 
+			{
 				rectangle(img, cv::Point(cvRound(r.x * scale), cvRound(r.y * scale)),
 					cv::Point(cvRound((r.x + r.width - 1) * scale), cvRound((r.y + r.height - 1) * scale)),
 					color, 3, 8, 0);
+			}
 			if (nestedCascade.empty())
 				continue;
 			// ROI from found face
@@ -311,6 +316,7 @@ public:
 					circle(img, center, radius, color, 3, 8, 0);
 
 				}
+				choose_face++;
 			}
 		}
 
