@@ -204,11 +204,10 @@ private:
 
 	string cascadeName;
 	string nestedCascadeName;
-
+	cv::Point center;
 
 public:
 
-	cv::Point center;
 	std::vector<ImVec2> found_faces;
 
 	facedetection()
@@ -228,7 +227,6 @@ public:
 	void detectAndDraw(cv::Mat& img)
 	{
 		vector<cv::Rect> faces;
-
 		for (int ii = 0; ii < found_faces.size(); ii++)
 		{
 			found_faces.erase(found_faces.begin());
@@ -299,7 +297,6 @@ public:
 
 				// Draw Face
 				circle(img, center, radius, color, 3, 8, 0);
-
 				center.x = cvRound((r.x + r.width * 0.5) * scale);
 				center.y = cvRound((r.y + r.height * 0.5) * scale);
 				found_faces.push_back(ImVec2((float)center.x, (float)center.y));
@@ -316,6 +313,7 @@ public:
 				}
 			}
 		}
+
 	}
 };
 
