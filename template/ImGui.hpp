@@ -149,8 +149,9 @@ public:
 
 		// Show actually detected facedetection in Plot
 		ImGui::Begin("Facedetection");
-		static float size = 0.67f;
-		ImGui::SliderFloat("Size", &size, 0, 1);
+		static int size = n_points/2;
+		ImGui::SliderInt("Size", &size,0,n_points);
+
 		// trace points to plot
 		static float x[n_points];
 		static float y[n_points];
@@ -162,16 +163,16 @@ public:
 
 		if (ImPlot::BeginPlot("Detection Results")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
-			ImPlot::PlotScatter("Face", &x[n_points-1], &y[n_points-1], 1);
+			ImPlot::PlotScatter("Face(s)", &x[n_points-1], &y[n_points-1], 1);
 			ImPlot::EndPlot();
 			ImGui::End();
 		}
 
+		// Show face Motion trace in Plot
+		static float xs[n_points], ys[n_points];
 		if (ImPlot::BeginPlot("Show motion trace")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			// Show face Motion trace in Plot
-			static float xs[n_points], ys[n_points];
 			// Euklidian Distance
 			std::vector<float>  euklidianDistance;
 			if (facePos.size() > 1) {
