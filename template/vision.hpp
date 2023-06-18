@@ -225,7 +225,6 @@ public:
 		}
 	}
 
-
 	void detectAndDraw(cv::Mat& img)
 	{
 		double t = 0;
@@ -258,7 +257,7 @@ public:
 			flip(smallImg, smallImg, 1);
 			cascade.detectMultiScale(smallImg, faces2,
 				1.1, 2, 0
-				//| cv::CASCADE_FIND_BIGGEST_OBJECT
+				//| cv::CASCADE_FIND_BIGGEST_OBJECT,
 				//| cv::CASCADE_DO_ROUGH_SEARCH
 				| cv::CASCADE_SCALE_IMAGE,
 				cv::Size(30, 30));
@@ -268,8 +267,8 @@ public:
 			}
 		}
 				
-		cv::putText(img, "text", cv::Point(50, 50), cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 255, 0), 2, false);
-
+		//cv::putText(img, "text", cv::Point(50, 50), cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 255, 0), 2, false);
+		
 		for (size_t i = 0; i < faces.size(); i++)
 		{
 			cv::Rect r = faces[i];

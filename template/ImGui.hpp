@@ -13,6 +13,17 @@ struct PictDim {
 #endif
 };
 
+struct Point2D {
+	double  x, y;
+	constexpr Point2D() : x(0), y(0) { }
+	constexpr Point2D(double _x, double _y) : x(_x), y(_y) { }
+	int& operator[] (size_t idx) { IM_ASSERT(idx == 0 || idx == 1); return ((int*)(void*)(char*)this)[idx]; } // We very rarely use this [] operator, so the assert overhead is fine.
+	int  operator[] (size_t idx) const { IM_ASSERT(idx == 0 || idx == 1); return ((const int*)(const void*)(const char*)this)[idx]; }
+#ifdef IM_VEC2_CLASS_EXTRA
+	IM_VEC2_CLASS_EXTRA     // Define additional constructors and implicit cast operators in imconfig.h to convert back and forth between your math types and ImVec2.
+#endif
+};
+
 /// <summary>
 /// ImGui Window creation
 /// </summary>
@@ -88,20 +99,31 @@ public:
 		ImGui::Begin("Facedetection");
 		ImPlot::BeginPlot("Detection Results");
 		ImPlot::SetupAxesLimits(0, double(frameWidth),0, -double(frameHeight));
-
 		for (int ii = 0; ii < facePos.size(); ii++)
 		{
 			ImPlot::PlotScatter("Point", &facePos[ii].x, &facePos[ii].y, 1);
 		}
-		
 		ImPlot::EndPlot();
 		ImGui::End();
-		
 
+		// Show face Motion trace in Plot
+		static float xs[n_points], ys[n_points];
+		for (int ii = 0; ii < facePos.size(); ++ii) { 
+			xs[ii] = float(facePos[ii].x);
+			ys[ii] = float(facePos[ii].y);
+		}
+
+		if (ImPlot::BeginPlot("Show motion trace")) {
+			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+			ImPlot::PlotLine("", xs, ys, n_points, ImPlotLineFlags_Segments);
+			ImPlot::EndPlot();
+		}
+		
 		// Show video cam0
 		ImGui::Begin("cam0");
 		ImGui::Checkbox("Horizontal flip", &cam_access0.horizontalflip);
-		ImGui::SameLine;
+		ImGui::SameLine();
 		ImGui::Text("    FPS: %.2f    ", ImGui::GetIO().Framerate); // Framerate
 		ImGui::SameLine();
 		ImGui::Text("pointer = %p", textureCam0.imageTexture);

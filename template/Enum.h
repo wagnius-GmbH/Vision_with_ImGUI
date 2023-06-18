@@ -33,3 +33,7 @@ enum fliping
     flip_b = -1,
     flip_non = 10
 };
+
+enum motionTracker {
+    n_points = 20
+};
