@@ -31,7 +31,7 @@ private:
 	VideoForImGui textureCam1;
 
 	static const char* imageFilePath; // Declaration of static member variable
-	
+
 	VideoForImGui image;
 	PictDim last_frame_dimensions;
 	PictDim last_image_dimensions;
@@ -43,7 +43,6 @@ public:
 
 	CameraClass cam_access0;
 	CameraClass cam_access1;
-
 	ImVector<ImPlotPoint> facePos;
 
 	UseImGui() {
