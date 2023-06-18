@@ -80,16 +80,68 @@ public:
 		ImGui::NewFrame();
 	};
 	void Update() {
-
 		// Webcam frames
 		cam_access0.readFrame();
+
+		ShowFaceDetection();
+		ShowVideo();
+		ShowPicture();
+	}
+	void Render() {
+		// Render dear imgui into screen
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	void Shutdown() {
+		// Cleanup
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImPlot::DestroyContext();
+		ImGui::DestroyContext();
+	}
+
+	void ShowVideo() {
+		// Show video cam0
+		ImGui::Begin("cam0");
+		ImGui::Checkbox("Horizontal flip", &cam_access0.horizontalflip);
+		ImGui::SameLine();
+		ImGui::Text("    FPS: %.2f    ", ImGui::GetIO().Framerate); // Framerate
+		ImGui::SameLine();
+		ImGui::Text("pointer = %p", textureCam0.imageTexture);
+		ImGui::SameLine();
+		ImGui::Text("size = %d x %d", frameWidth, frameHeight);
+		ImGui::Image((void*)(intptr_t)textureCam0.imageTexture, ImVec2(frameWidth, frameHeight));
+		ImGui::End();
+	};
+
+	void ShowPicture() {
+		// Show picture ()
+		ImGui::Begin("Picture");
+		textureCam0.BindCVMat2GLTexture(cam_access0.frame);
+		ImVec2 window_Size_picture = ImGui::GetWindowSize() - ImGui::GetWindowContentRegionMin();
+		if (window_Size_picture.x != last_image_dimensions.x || window_Size_picture.y != last_image_dimensions.y) {
+			image.image_width = int(window_Size_picture.x);
+			image.image_height = int(window_Size_picture.y);
+			image.loadImage(imageFilePath);
+			last_image_dimensions.x = int(window_Size_picture.x);
+			last_image_dimensions.y = int(window_Size_picture.y);
+		}
+
+		ImGui::Text("pointer = %p", image.imageTexture);
+		ImGui::Text("size = %d x %d", window_Size_picture.x, window_Size_picture.y);
+		ImGui::Image((void*)(intptr_t)image.imageTexture, ImVec2(window_Size_picture.x, window_Size_picture.y));
+		ImGui::End();
+	}
+
+	void ShowFaceDetection() {
 		// Vision
 		facedetectionCam0.detectAndDraw(cam_access0.frame);
 
 		// get face positions from detection
 		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
 		{
-			facePos.push_back(ImPlotPoint(float(facedetectionCam0.found_faces[ii].x), -float(facedetectionCam0.found_faces[ii].y)));
+			facePos.push_back(ImPlotPoint((facedetectionCam0.found_faces[ii].x), -(facedetectionCam0.found_faces[ii].y)));
 		}
 		// delete if the buffer full
 		if (facePos.size() > 20) {
@@ -103,15 +155,15 @@ public:
 		// trace points to plot
 		static float x[n_points];
 		static float y[n_points];
-		
+
 		if (ImPlot::BeginPlot("Detection Results")) {
-		ImPlot::SetupAxesLimits(0, double(frameWidth),0, -double(frameHeight));
-		for (int ii = 0; ii < facePos.size(); ii++)
+			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
+			for (int ii = 0; ii < facePos.size(); ii++)
 			{
-				x[ii] = facePos[ii].x;
-				y[ii] = facePos[ii].y;
+				x[ii] = (float)facePos[ii].x;
+				y[ii] = (float)facePos[ii].y;
 			}
-			ImPlot::PlotScatter("Face", &x[n_points - 1], &y[n_points - 1], 1);
+			ImPlot::PlotScatter("Face", &x[0], &y[0], 1);
 			ImPlot::EndPlot();
 			ImGui::End();
 		}
@@ -126,11 +178,11 @@ public:
 			if (facePos.size() > 1) {
 				for (int ii = 0; ii < (facePos.size() - 1); ii++)
 				{
-					euklidianDistance.push_back(sqrt(pow(float(facePos[ii].x) - float(facePos[ii + 1].x), 2) + pow(float(facePos[ii].y) - float(facePos[ii + 1].y), 2)));
+					euklidianDistance.push_back(sqrt(pow((facePos[ii].x) - (facePos[ii + 1].x), 2) + pow((facePos[ii].y) - (facePos[ii + 1].y), 2)));
 
 					if (euklidianDistance[ii] < 50) {
-						xs[ii] = float(facePos[ii].x);
-						ys[ii] = float(facePos[ii].y);
+						xs[ii] = (float)facePos[ii].x;
+						ys[ii] = (float)facePos[ii].y;
 						lastPos.x = xs[ii];
 						lastPos.y = ys[ii];
 					}
@@ -146,50 +198,8 @@ public:
 			ImPlot::PlotScatter("Face 1", xs, ys, n_points, ImPlotLineFlags_Segments);
 			ImPlot::EndPlot();
 		}
-
-		// Show video cam0
-		ImGui::Begin("cam0");
-		ImGui::Checkbox("Horizontal flip", &cam_access0.horizontalflip);
-		ImGui::SameLine();
-		ImGui::Text("    FPS: %.2f    ", ImGui::GetIO().Framerate); // Framerate
-		ImGui::SameLine();
-		ImGui::Text("pointer = %p", textureCam0.imageTexture);
-		ImGui::SameLine();
-		ImGui::Text("size = %d x %d", frameWidth, frameHeight);
-		ImGui::Image((void*)(intptr_t)textureCam0.imageTexture, ImVec2(frameWidth, frameHeight));
-		ImGui::End();
-
-		// Show picture ()
-		ImGui::Begin("Picture");
-		textureCam0.BindCVMat2GLTexture(cam_access0.frame);
-		ImVec2 window_Size_picture = ImGui::GetWindowSize() - ImGui::GetWindowContentRegionMin();
-		if (window_Size_picture.x != last_image_dimensions.x || window_Size_picture.y != last_image_dimensions.y) {
-			image.image_width  = int(window_Size_picture.x);
-			image.image_height = int(window_Size_picture.y);
-			image.loadImage(imageFilePath);
-			last_image_dimensions.x = int(window_Size_picture.x);
-			last_image_dimensions.y = int(window_Size_picture.y);
-		}
-
-		ImGui::Text("pointer = %p", image.imageTexture);
-		ImGui::Text("size = %d x %d", window_Size_picture.x, window_Size_picture.y);
-		ImGui::Image((void*)(intptr_t)image.imageTexture, ImVec2(window_Size_picture.x, window_Size_picture.y));
-		ImGui::End();
-	
-	}
-	void Render() {
-		// Render dear imgui into screen
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	}
-
-	void Shutdown() {
-		// Cleanup
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImPlot::DestroyContext();
-		ImGui::DestroyContext();
-	}
+	};
 };
 
 const char* UseImGui::imageFilePath = "G:/Meine Ablage/001_wagnius GmbH/100_Marketing/home page data/Wagnius EN.jpg";
+

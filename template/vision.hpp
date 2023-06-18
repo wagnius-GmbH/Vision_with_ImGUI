@@ -17,7 +17,7 @@ public:
 	/// <summary>
 	/// Constructor sets web cam settings
 	/// </summary>
-	void init (int camera = 0, bool flip = false) {
+	void init (int camera = 0, bool flip = true) {
 		// Initialize cam0 and cam1 objects
 		vid_capture = cv::VideoCapture(camera);  // Assuming cam0 is the first camera
 		if (!vid_capture.isOpened())
