@@ -154,15 +154,15 @@ public:
 		// trace points to plot
 		static float x[n_points];
 		static float y[n_points];
+		for (int ii = 0; ii < facePos.size(); ii++)
+		{
+			x[ii] = (float)facePos[ii].x;
+			y[ii] = (float)facePos[ii].y;
+		}
 
 		if (ImPlot::BeginPlot("Detection Results")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
-			for (int ii = 0; ii < facePos.size(); ii++)
-			{
-				x[ii] = (float)facePos[ii].x;
-				y[ii] = (float)facePos[ii].y;
-			}
-			ImPlot::PlotScatter("Face", &x[0], &y[0], 1);
+			ImPlot::PlotScatter("Face", &x[n_points-1], &y[n_points-1], 1);
 			ImPlot::EndPlot();
 			ImGui::End();
 		}
