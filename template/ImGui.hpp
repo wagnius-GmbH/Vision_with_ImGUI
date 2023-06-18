@@ -37,7 +37,7 @@ private:
 	PictDim last_image_dimensions;
 
 	facedetection facedetectionCam0;
-	Point2D lastPos;
+	Point2D lastPos1, lastPos2;
 
 public:
 
@@ -52,8 +52,8 @@ public:
 		// Picture
 		image.loadImage(imageFilePath);
 		//Motion track
-		lastPos = Point2D(0, 0);
-
+		lastPos1 = Point2D(0, 0);
+		lastPos2 = Point2D(0, 0);
 	}
 
 	void Init(GLFWwindow* window, const char* glsl_version) {
@@ -136,42 +136,39 @@ public:
 	void ShowFaceDetection() {
 		// Vision
 		facedetectionCam0.detectAndDraw(cam_access0.frame);
+		// Actual vision results
+		static float x[n_faces];
+		static float y[n_faces];
 
 		// get face positions from detection
 		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
 		{
 			facePos.push_back(ImPlotPoint((facedetectionCam0.found_faces[ii].x), -(facedetectionCam0.found_faces[ii].y)));
+			x[ii] =  (float)facedetectionCam0.found_faces[ii].x;
+			y[ii] = -(float)facedetectionCam0.found_faces[ii].y;
 		}
 		// delete if the buffer full
-		if (facePos.size() > 20) {
+		if (facePos.size() > n_points) {
 			facePos.erase(facePos.begin());
 		}
 
+		///////////////////////////////////////////////////////////////////////////
 		// Show actually detected facedetection in Plot
 		ImGui::Begin("Facedetection");
 		static int size = n_points/2;
 		ImGui::SliderInt("Size", &size,0,n_points);
 
-		// trace points to plot
-		static float x[n_faces];
-		static float y[n_faces];
-
-		if (ImPlot::BeginPlot("Detection Results")) {
+		if (ImPlot::BeginPlot("Actuall face Position")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
-			if (facedetectionCam0.found_faces.size() > 0 && n_faces >= facedetectionCam0.found_faces.size()) {
-				for (int ii = 0; ii < facePos.size(); ii++) {
-					x[ii] = (float)facedetectionCam0.found_faces[ii].x;
-					y[ii] = (float)facedetectionCam0.found_faces[ii].y;
-				}
-			}
-			ImPlot::PlotScatter("Face 1", &x[0], &y[0], 1);
-			ImPlot::PlotScatter("Face 2", &x[1], &y[1], 1);
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+			ImPlot::PlotScatter("Face 1", &x[0], &y[0], n_points, ImPlotLineFlags_Segments);
+			ImPlot::PlotScatter("Face 2", &x[1], &y[1], n_points, ImPlotLineFlags_Segments);
 			ImPlot::EndPlot();
-			ImGui::End();
 		}
 
 		// Show face Motion trace in Plot
-		static float xs[n_points], ys[n_points];
+		static float xs1[n_points], ys1[n_points];
+		static float xs2[n_points], ys2[n_points];
 		if (ImPlot::BeginPlot("Show motion trace")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
@@ -183,23 +180,33 @@ public:
 					euklidianDistance.push_back(sqrt(pow((facePos[ii].x) - (facePos[ii + 1].x), 2) + pow((facePos[ii].y) - (facePos[ii + 1].y), 2)));
 
 					if (euklidianDistance[ii] < 50) {
-						xs[ii] = (float)facePos[ii].x;
-						ys[ii] = (float)facePos[ii].y;
-						lastPos.x = xs[ii];
-						lastPos.y = ys[ii];
+						xs1[ii] = (float)facePos[ii].x;
+						ys1[ii] = (float)facePos[ii].y;
+						lastPos1.x = xs1[ii];
+						lastPos1.y = ys1[ii];
+						xs2[ii] = (float)facePos[ii].x;
+						ys2[ii] = (float)facePos[ii].y;
+						lastPos2.x = xs2[ii];
+						lastPos2.y = ys2[ii];
 					}
 					else
 					{
-						xs[ii] = lastPos.x;
-						ys[ii] = lastPos.y;
+						xs1[ii] = lastPos1.x;
+						ys1[ii] = lastPos1.y;
+						xs2[ii] = lastPos2.x;
+						ys2[ii] = lastPos2.y;
 					}
 				}
 			}
-			xs[19] = lastPos.x;
-			ys[19] = lastPos.y;
-			ImPlot::PlotScatter("Face 1", xs, ys, n_points, ImPlotLineFlags_Segments);
+			xs1[19] = lastPos1.x;
+			ys1[19] = lastPos1.y;
+			xs2[19] = lastPos2.x;
+			ys2[19] = lastPos2.y;
+			ImPlot::PlotScatter("Face 1", xs1, ys1, n_points, ImPlotLineFlags_Segments);
+			ImPlot::PlotScatter("Face 2", xs2, ys2, n_points, ImPlotLineFlags_Segments);
 			ImPlot::EndPlot();
 		}
+		ImGui::End();
 	};
 };
 
