@@ -91,13 +91,12 @@ public:
 		{
 			facePos.push_back(ImPlotPoint(float(facedetectionCam0.found_faces[ii].x), -float(facedetectionCam0.found_faces[ii].y)));
 		}
-		// delete the buffer if full
+		// delete if the buffer full
 		if (facePos.size() > 20) {
 			facePos.erase(facePos.begin());
 		}
 
-		
-		// Show detected facedetection in Plot
+		// Show actually detected facedetection in Plot
 		ImGui::Begin("Facedetection");
 		static float size = 0.67f;
 		ImGui::SliderFloat("Size", &size, 0, 1);
@@ -105,54 +104,49 @@ public:
 		static float x[n_points];
 		static float y[n_points];
 		
-		ImPlot::BeginPlot("Detection Results");
+		if (ImPlot::BeginPlot("Detection Results")) {
 		ImPlot::SetupAxesLimits(0, double(frameWidth),0, -double(frameHeight));
 		for (int ii = 0; ii < facePos.size(); ii++)
-		{
-			//ImPlot::PlotScatter("Point", &facePos[ii].x, &facePos[ii].y, 1);
-			x[ii] = facePos[ii].x;
-			y[ii] = facePos[ii].y;
-		}
-		ImPlot::PlotScatter("Points", x, y, n_points);
-
-		ImPlot::EndPlot();
-		ImGui::End();
-
-		// Show face Motion trace in Plot
-		static float xs[n_points], ys[n_points];
-
-		// Euklidian Distance
-		std::vector<float>  euklidianDistance;
-
-		if (facePos.size() > 1) {
-			for (int ii = 0; ii < (facePos.size()-1); ii++)
 			{
-				euklidianDistance.push_back(sqrt(pow(float(facePos[ii].x) - float(facePos[ii + 1].x), 2) + pow(float(facePos[ii].y) - float(facePos[ii + 1].y), 2)));
-		
-				if (euklidianDistance[ii] < 50) {
-					xs[ii] = float(facePos[ii].x);
-					ys[ii] = float(facePos[ii].y);
-					lastPos.x = xs[ii];
-					lastPos.y = ys[ii];
-				}
-				else 
-				{
-					xs[ii] = lastPos.x;
-					ys[ii] = lastPos.y;
-				}
+				x[ii] = facePos[ii].x;
+				y[ii] = facePos[ii].y;
 			}
+			ImPlot::PlotScatter("Face", &x[n_points - 1], &y[n_points - 1], 1);
+			ImPlot::EndPlot();
+			ImGui::End();
 		}
-		xs[19] = lastPos.x;
-		ys[19] = lastPos.y;
-
 
 		if (ImPlot::BeginPlot("Show motion trace")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("", xs, ys, n_points, ImPlotLineFlags_Segments);
+			// Show face Motion trace in Plot
+			static float xs[n_points], ys[n_points];
+			// Euklidian Distance
+			std::vector<float>  euklidianDistance;
+			if (facePos.size() > 1) {
+				for (int ii = 0; ii < (facePos.size() - 1); ii++)
+				{
+					euklidianDistance.push_back(sqrt(pow(float(facePos[ii].x) - float(facePos[ii + 1].x), 2) + pow(float(facePos[ii].y) - float(facePos[ii + 1].y), 2)));
+
+					if (euklidianDistance[ii] < 50) {
+						xs[ii] = float(facePos[ii].x);
+						ys[ii] = float(facePos[ii].y);
+						lastPos.x = xs[ii];
+						lastPos.y = ys[ii];
+					}
+					else
+					{
+						xs[ii] = lastPos.x;
+						ys[ii] = lastPos.y;
+					}
+				}
+			}
+			xs[19] = lastPos.x;
+			ys[19] = lastPos.y;
+			ImPlot::PlotScatter("Face 1", xs, ys, n_points, ImPlotLineFlags_Segments);
 			ImPlot::EndPlot();
 		}
-		
+
 		// Show video cam0
 		ImGui::Begin("cam0");
 		ImGui::Checkbox("Horizontal flip", &cam_access0.horizontalflip);
