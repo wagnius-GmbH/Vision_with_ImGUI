@@ -14,14 +14,11 @@ struct PictDim {
 };
 
 struct Point2D {
-	double  x, y;
+	float  x, y;
 	constexpr Point2D() : x(0), y(0) { }
-	constexpr Point2D(double _x, double _y) : x(_x), y(_y) { }
+	constexpr Point2D(float _x, float _y) : x(_x), y(_y) { }
 	int& operator[] (size_t idx) { IM_ASSERT(idx == 0 || idx == 1); return ((int*)(void*)(char*)this)[idx]; } // We very rarely use this [] operator, so the assert overhead is fine.
 	int  operator[] (size_t idx) const { IM_ASSERT(idx == 0 || idx == 1); return ((const int*)(const void*)(const char*)this)[idx]; }
-#ifdef IM_VEC2_CLASS_EXTRA
-	IM_VEC2_CLASS_EXTRA     // Define additional constructors and implicit cast operators in imconfig.h to convert back and forth between your math types and ImVec2.
-#endif
 };
 
 /// <summary>
@@ -40,7 +37,7 @@ private:
 	PictDim last_image_dimensions;
 
 	facedetection facedetectionCam0;
-
+	Point2D lastPos;
 
 public:
 
@@ -53,11 +50,11 @@ public:
 		// webcam
 		cam_access0.init(cam0);
 		textureCam0.initVideo(cam_access0.frame);
-
 		// Picture
 		image.loadImage(imageFilePath);
+		//Motion track
+		lastPos = Point2D(0, 0);
 
-		//facedetectionCam0.runInfinitFaceDetection(cam_access0);
 	}
 
 	void Init(GLFWwindow* window, const char* glsl_version) {
@@ -89,29 +86,65 @@ public:
 		// Vision
 		facedetectionCam0.detectAndDraw(cam_access0.frame);
 
-		// trace face detection
-		facePos.push_back(ImPlotPoint(double(facedetectionCam0.center.x), -double(facedetectionCam0.center.y)));
+		// get face positions from detection
+		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
+		{
+			facePos.push_back(ImPlotPoint(float(facedetectionCam0.found_faces[ii].x), -float(facedetectionCam0.found_faces[ii].y)));
+		}
+		// delete the buffer if full
 		if (facePos.size() > 20) {
 			facePos.erase(facePos.begin());
 		}
 
+		
 		// Show detected facedetection in Plot
 		ImGui::Begin("Facedetection");
+		static float size = 0.67f;
+		ImGui::SliderFloat("Size", &size, 0, 1);
+		// trace points to plot
+		static float x[n_points];
+		static float y[n_points];
+		
 		ImPlot::BeginPlot("Detection Results");
 		ImPlot::SetupAxesLimits(0, double(frameWidth),0, -double(frameHeight));
 		for (int ii = 0; ii < facePos.size(); ii++)
 		{
-			ImPlot::PlotScatter("Point", &facePos[ii].x, &facePos[ii].y, 1);
+			//ImPlot::PlotScatter("Point", &facePos[ii].x, &facePos[ii].y, 1);
+			x[ii] = facePos[ii].x;
+			y[ii] = facePos[ii].y;
 		}
+		ImPlot::PlotScatter("Points", x, y, n_points);
+
 		ImPlot::EndPlot();
 		ImGui::End();
 
 		// Show face Motion trace in Plot
 		static float xs[n_points], ys[n_points];
-		for (int ii = 0; ii < facePos.size(); ++ii) { 
-			xs[ii] = float(facePos[ii].x);
-			ys[ii] = float(facePos[ii].y);
+
+		// Euklidian Distance
+		std::vector<float>  euklidianDistance;
+
+		if (facePos.size() > 1) {
+			for (int ii = 0; ii < (facePos.size()-1); ii++)
+			{
+				euklidianDistance.push_back(sqrt(pow(float(facePos[ii].x) - float(facePos[ii + 1].x), 2) + pow(float(facePos[ii].y) - float(facePos[ii + 1].y), 2)));
+		
+				if (euklidianDistance[ii] < 50) {
+					xs[ii] = float(facePos[ii].x);
+					ys[ii] = float(facePos[ii].y);
+					lastPos.x = xs[ii];
+					lastPos.y = ys[ii];
+				}
+				else 
+				{
+					xs[ii] = lastPos.x;
+					ys[ii] = lastPos.y;
+				}
+			}
 		}
+		xs[19] = lastPos.x;
+		ys[19] = lastPos.y;
+
 
 		if (ImPlot::BeginPlot("Show motion trace")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));

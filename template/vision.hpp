@@ -201,7 +201,7 @@ class facedetection {
 private:
 	cv::CascadeClassifier cascade, nestedCascade;
 	double scale;
-	bool tryflip;
+
 	string cascadeName;
 	string nestedCascadeName;
 
@@ -209,13 +209,13 @@ private:
 public:
 
 	cv::Point center;
+	std::vector<ImVec2> found_faces;
 
 	facedetection()
 	{
 		cascadeName = "Vision/haarcascade_frontalface_alt.xml";
 		nestedCascadeName = "Vision/haarcascade_eye_tree_eyeglasses.xml";
 		scale = 1;
-		tryflip = false;
 
 		if (!nestedCascade.load(cv::samples::findFileOrKeep(nestedCascadeName)))
 			cerr << "WARNING: Could not load classifier cascade for nested objects" << endl;
@@ -227,8 +227,13 @@ public:
 
 	void detectAndDraw(cv::Mat& img)
 	{
-		double t = 0;
-		vector<cv::Rect> faces, faces2;
+		vector<cv::Rect> faces;
+
+		for (int ii = 0; ii < found_faces.size(); ii++)
+		{
+			found_faces.erase(found_faces.begin());
+		}
+
 		const static cv::Scalar colors[] =
 		{
 			cv::Scalar(255,0,0),
@@ -245,30 +250,16 @@ public:
 		double fx = 1 / scale;
 		resize(gray, smallImg, cv::Size(), fx, fx, cv::INTER_LINEAR_EXACT);
 		equalizeHist(smallImg, smallImg);
-		t = (double)cv::getTickCount();
+
+		// find faces 
 		cascade.detectMultiScale(smallImg, faces,
 			1.1, 2, 0
 			//|CASCADE_FIND_BIGGEST_OBJECT
 			//|CASCADE_DO_ROUGH_SEARCH
 			| cv::CASCADE_SCALE_IMAGE,
 			cv::Size(30, 30));
-		if (tryflip)
-		{
-			flip(smallImg, smallImg, 1);
-			cascade.detectMultiScale(smallImg, faces2,
-				1.1, 2, 0
-				//| cv::CASCADE_FIND_BIGGEST_OBJECT,
-				//| cv::CASCADE_DO_ROUGH_SEARCH
-				| cv::CASCADE_SCALE_IMAGE,
-				cv::Size(30, 30));
-			for (vector<cv::Rect>::const_iterator r = faces2.begin(); r != faces2.end(); ++r)
-			{
-				faces.push_back(cv::Rect(smallImg.cols - r->x - r->width, r->y, r->width, r->height));
-			}
-		}
-				
-		//cv::putText(img, "text", cv::Point(50, 50), cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 255, 0), 2, false);
-		
+
+		// find eyes for the faces			
 		for (size_t i = 0; i < faces.size(); i++)
 		{
 			cv::Rect r = faces[i];
@@ -283,7 +274,7 @@ public:
 				center.x = cvRound((r.x + r.width * 0.5) * scale);
 				center.y = cvRound((r.y + r.height * 0.5) * scale);
 				radius = cvRound((r.width + r.height) * 0.25 * scale);
-				circle(img, center, radius, color, 3, 8, 0);
+
 			}
 			else
 				rectangle(img, cv::Point(cvRound(r.x * scale), cvRound(r.y * scale)),
@@ -291,7 +282,10 @@ public:
 					color, 3, 8, 0);
 			if (nestedCascade.empty())
 				continue;
+			// ROI from found face
 			smallImgROI = smallImg(r);
+
+			// find eyes 
 			nestedCascade.detectMultiScale(smallImgROI, nestedObjects,
 				1.1, 2, 0
 				//| cv::CASCADE_FIND_BIGGEST_OBJECT
@@ -299,13 +293,27 @@ public:
 				//| cv::CASCADE_DO_CANNY_PRUNING
 				| cv::CASCADE_SCALE_IMAGE,
 				cv::Size(30, 30));
-			for (size_t j = 0; j < nestedObjects.size(); j++)
-			{
-				cv::Rect nr = nestedObjects[j];
-				center.x = cvRound((r.x + nr.x + nr.width * 0.5) * scale);
-				center.y = cvRound((r.y + nr.y + nr.height * 0.5) * scale);
-				radius = cvRound((nr.width + nr.height) * 0.25 * scale);
+
+			// consider face only if eyes are found
+			if (nestedObjects.size() > 1) {
+
+				// Draw Face
 				circle(img, center, radius, color, 3, 8, 0);
+
+				center.x = cvRound((r.x + r.width * 0.5) * scale);
+				center.y = cvRound((r.y + r.height * 0.5) * scale);
+				found_faces.push_back(ImVec2((float)center.x, (float)center.y));
+
+				// Draw eyes  
+				for (size_t j = 0; j < nestedObjects.size(); j++)
+				{
+					cv::Rect nr = nestedObjects[j];
+					center.x = cvRound((r.x + nr.x + nr.width * 0.5) * scale);
+					center.y = cvRound((r.y + nr.y + nr.height * 0.5) * scale);
+					radius = cvRound((nr.width + nr.height) * 0.25 * scale);
+					circle(img, center, radius, color, 3, 8, 0);
+
+				}
 			}
 		}
 	}
