@@ -210,5 +210,5 @@ public:
 	};
 };
 
-const char* UseImGui::imageFilePath = "G:/Meine Ablage/001_wagnius GmbH/100_Marketing/home page data/Wagnius EN.jpg";
+const char* UseImGui::imageFilePath = "Picts/wagnius.png";
 
