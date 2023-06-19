@@ -9,7 +9,8 @@
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",      ,
+      "cmakeToolchain": "C:/src/vcpkg/scripts/buildsystems/vcpkg.cmake"
     },
     {
       "name": "mcvc-x64-Releas",
