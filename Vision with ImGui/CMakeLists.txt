@@ -12,12 +12,20 @@ set(PROJECT_PATCH_VERSION "0")
 set(PROJECT_VERSION    ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
 set(APP_NAME "Vision with ImGui")
 
+# Debug
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/configuration/readme.md.in"
+    "${PROJECT_SOURCE_DIR}/readme.md"
+    @ONLY
+)
+
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/configuration/Version.h.in"
     "${CMAKE_CURRENT_SOURCE_DIR}/configuration/Version.h"
     @ONLY
 )
 
+# Runntime
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/configuration/Version.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/Version.h"

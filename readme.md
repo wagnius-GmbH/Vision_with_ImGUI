@@ -1,3 +1,5 @@
-## Face tracking shown with ImGui
+## Vision with ImGui
 
-Face tracking shown with ImGui
+### Version
+0.1.0
+
