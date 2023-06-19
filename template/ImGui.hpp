@@ -1,6 +1,5 @@
-#include "header.h"
-#include "vision.hpp"
 
+#include "vision.hpp"
 
 struct PictDim {
 	int  x, y;
@@ -26,11 +25,10 @@ struct Point2D {
 /// </summary>
 class UseImGui {
 private:
-
 	VideoForImGui textureCam0;
 	VideoForImGui textureCam1;
 
-	static const char* imageFilePath; // Declaration of static member variable
+	static const char* imageFilePath; // Declaration of static member variable (logo)
 
 	VideoForImGui image;
 	PictDim last_frame_dimensions;
