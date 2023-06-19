@@ -21,7 +21,6 @@ using namespace std;
 // implot
 #include <implot.h>
 
-
 // opencv dependencies 
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
