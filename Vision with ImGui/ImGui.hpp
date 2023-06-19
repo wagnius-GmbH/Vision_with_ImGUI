@@ -171,14 +171,17 @@ public:
 	void ShowFaceDetection() {
 		// Vision
 		facedetectionCam0.detectAndDraw(cam_access0.frame);
+		
 		// Actual vision results
 		static float x[n_faces];
 		static float y[n_faces];
 
-		// get face positions from detection
+		cout << "Detected faces: " << facedetectionCam0.found_faces.size() << endl;
+
+		// get actuall face positions from detection and store in buffer vector
 		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
 		{
-			facePos.push_back(ImPlotPoint((facedetectionCam0.found_faces[ii].x), -(facedetectionCam0.found_faces[ii].y)));
+			facePos.push_front(ImPlotPoint((facedetectionCam0.found_faces[ii].x), -(facedetectionCam0.found_faces[ii].y)));
 			x[ii] =  (float)facedetectionCam0.found_faces[ii].x;
 			y[ii] = -(float)facedetectionCam0.found_faces[ii].y;
 		}
@@ -230,6 +233,25 @@ public:
 						ys1[ii] = lastPos1.y;
 						xs2[ii] = lastPos2.x;
 						ys2[ii] = lastPos2.y;
+					}
+				}
+			}
+			else 
+			{
+				for (int ii = 0; ii < (facePos.size() - 1); ii++)
+				{
+					euklidianDistance.push_back(sqrt(pow((facePos[ii].x) - (facePos[ii + 1].x), 2) + pow((facePos[ii].y) - (facePos[ii + 1].y), 2)));
+
+					if (euklidianDistance[ii] < 50) {
+						xs1[ii] = (float)facePos[ii].x;
+						ys1[ii] = (float)facePos[ii].y;
+						lastPos1.x = xs1[ii];
+						lastPos1.y = ys1[ii];
+					}
+					else
+					{
+						xs1[ii] = lastPos1.x;
+						ys1[ii] = lastPos1.y;
 					}
 				}
 			}

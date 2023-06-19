@@ -286,15 +286,13 @@ public:
 			cv::Size(30, 30));
 
 		// find eyes for the faces			
-
 		int choose_face = 0;
-
 		for (size_t i = 0; i < faces.size(); i++)
 		{
 			cv::Rect r = faces[i];
 			cv::Mat smallImgROI;
 			vector<cv::Rect> nestedObjects;
-			
+
 			cv::Scalar color = colors[choose_face % 8];
 			int radius;
 			double aspect_ratio = (double)r.width / r.height;
@@ -305,7 +303,7 @@ public:
 				radius = cvRound((r.width + r.height) * 0.25 * scale);
 
 			}
-			else 
+			else
 			{
 				rectangle(img, cv::Point(cvRound(r.x * scale), cvRound(r.y * scale)),
 					cv::Point(cvRound((r.x + r.width - 1) * scale), cvRound((r.y + r.height - 1) * scale)),
@@ -325,15 +323,14 @@ public:
 				| cv::CASCADE_SCALE_IMAGE,
 				cv::Size(30, 30));
 
-			// consider face only if eyes are found
+			// consider a face only if eyes are found
 			if (nestedObjects.size() > 1) {
-
-				// Draw Face
+				// store if eyes are found
+				found_faces.push_back(ImVec2((float)center.x, (float)center.y));
+				// Draw Face boundries
 				circle(img, center, radius, color, 3, 8, 0);
 				center.x = cvRound((r.x + r.width * 0.5) * scale);
 				center.y = cvRound((r.y + r.height * 0.5) * scale);
-				found_faces.push_back(ImVec2((float)center.x, (float)center.y));
-
 				// Draw eyes  
 				for (size_t j = 0; j < nestedObjects.size(); j++)
 				{
@@ -347,7 +344,26 @@ public:
 				choose_face++;
 			}
 		}
+		// If deviation in pixels is too small it is considered the same face
+		float deviation = 20;
+ 		for (int ii = (found_faces.size()-1); ii > 0; ii--)
+		{
+			float distance_r = sqrt(pow((found_faces[ii-1].x) - (found_faces[ii].x), 2) + pow((found_faces[ii-1].y) - (found_faces[ii].y), 2));
+			cout << distance_r << endl;
+			if (distance_r < deviation)
+			{
+				found_faces.erase(found_faces.begin() + ii);
+				//cout << "Deleted face on index: " << distance_r << endl;
+			}
+		}
 
+		// If still more than 2 faces are found just delete those
+		if (found_faces.size() > 2) {
+			for (int ii = (found_faces.size() - 1); ii > 1; ii--)
+			{	
+				found_faces.erase(found_faces.begin() + ii);				
+			}
+		}
 	}
 };
 
