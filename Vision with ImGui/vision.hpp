@@ -360,23 +360,24 @@ public:
 		}
 
 		// If still more than 2 faces are found just delete those
-		if (found_faces.size() > 2) {
+		if (found_faces.size() > n_faces) {
 			for (int ii = (found_faces.size() - 1); ii > 1; ii--)
 			{	
 				found_faces.erase(found_faces.begin() + ii);				
 			}
 		}
-		
+
+		/*
 		// Sort faces as according to the last vision result
 		if (found_faces.size() > 1) {
 			float distance_r0_0 = sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
 			float distance_r0_1 = sqrt(pow((found_faces[1].x) - (found_faces_last[0].x), 2) + pow((found_faces[1].y) - (found_faces_last[0].y), 2));
 			if (distance_r0_0 > distance_r0_1) {
-				for (int ii = (found_faces_last.size() - 1); ii > 1; ii--)
+				for (int ii = n_faces - 1; ii == 0; ii--)
 				{
 					found_faces_last.erase(found_faces_last.begin() + ii);
 				}
-				for (int ii = (found_faces_last.size() - 1); ii > 1; ii--)
+				for (int ii = n_faces; ii == 0; ii--)
 				{
 					found_faces_last.push_back(found_faces[ii]);
 				}
@@ -390,6 +391,7 @@ public:
 				found_faces_last = found_faces;
 			}
 		}
+		*/
 	}
 };
 

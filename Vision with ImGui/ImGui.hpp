@@ -200,6 +200,7 @@ public:
 			y[ii] = -(float)facedetectionCam0.found_faces[ii].y;
 		}
 		
+
 		// Show actually detected facedetection in Plot
 		ImGui::Begin("Facedetection");
 		static int size = n_points/2;
@@ -222,7 +223,7 @@ public:
 		// push to diagram 
 		if (facedetectionCam0.found_faces.size() == 1) 
 		{
-			xs1[cnt1] = (float)facedetectionCam0.found_faces[0].x;
+			xs1[cnt1] =  (float)facedetectionCam0.found_faces[0].x;
 			ys1[cnt1] = -(float)facedetectionCam0.found_faces[0].y;
 			lastPos1.x = xs1[cnt1];
 			lastPos1.y = ys1[cnt1];
@@ -230,9 +231,9 @@ public:
 		}
 		else if (facedetectionCam0.found_faces.size() == 2)
 		{
-			xs1[cnt1] = (float)facedetectionCam0.found_faces[0].x;
+			xs1[cnt1] =  (float)facedetectionCam0.found_faces[0].x;
 			ys1[cnt1] = -(float)facedetectionCam0.found_faces[0].y;
-			xs2[cnt2] = (float)facedetectionCam0.found_faces[1].x;
+			xs2[cnt2] =  (float)facedetectionCam0.found_faces[1].x;
 			ys2[cnt2] = -(float)facedetectionCam0.found_faces[1].y;
 			lastPos1.x = xs1[cnt1];
 			lastPos1.y = ys1[cnt1];
