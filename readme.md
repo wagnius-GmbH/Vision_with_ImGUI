@@ -1,4 +1,3 @@
-## CMakeTemplate
+## Face tracking shown with ImGui
 
-Template project to use ImGui and ImPlot with vcpkg
-
+Face tracking shown with ImGui Version 0.1
