@@ -2,5 +2,5 @@
 Projekt um mit ImGui ein Face Tracking zu realisieren. 
 
 ### Version
-0.1.0
+0.2.0
 

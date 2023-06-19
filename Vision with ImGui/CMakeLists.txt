@@ -6,7 +6,7 @@
 add_executable (${PROJECT_NAME} "ImGuiTemplate.cpp"  "header.h" "ImGui.hpp" "Enum.h" "Vision.hpp" "configuration/Version.h.in" "configuration/Version.h")
 
 set(PROJECT_MAJOR_VERSION "0")
-set(PROJECT_MINOR_VERSION "1")
+set(PROJECT_MINOR_VERSION "2")
 set(PROJECT_PATCH_VERSION "0")
 
 set(PROJECT_VERSION    ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
