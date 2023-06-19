@@ -3,8 +3,34 @@
 #
 
 # Fügen Sie der ausführbaren Datei dieses Projekts eine Quelle hinzu.
-add_executable (${PROJECT_NAME} "ImGuiTemplate.cpp"  "header.h" "ImGui.hpp" "Enum.h" "Vision.hpp")
+add_executable (${PROJECT_NAME} "ImGuiTemplate.cpp"  "header.h" "ImGui.hpp" "Enum.h" "Vision.hpp" "configuration/Version.h.in" "configuration/Version.h")
 
+set(PROJECT_MAJOR_VERSION "0")
+set(PROJECT_MINOR_VERSION "1")
+set(PROJECT_PATCH_VERSION "0")
+
+set(PROJECT_VERSION    ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
+set(APP_NAME "Vision with ImGui")
+
+# Debug 
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/configuration/readme.md.in"
+    "${PROJECT_SOURCE_DIR}/readme.md"
+    @ONLY
+)
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/configuration/Version.h.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/configuration/Version.h"
+    @ONLY
+)
+
+# Runntime
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/configuration/Version.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/Version.h"
+    @ONLY
+)
 
 
 message("\n************************************")
@@ -21,6 +47,13 @@ message("Image source = ${CMAKE_CURRENT_SOURCE_DIR}/Picts/wagnius.png")
 message("Image destiantion = ${CMAKE_CURRENT_BINARY_DIR}/picts/wagnius.png")
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/picts/wagnius.png  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/picts)
 message("************************************\n")
+
+# Install Logos/icons
+message("************************************")
+message("Copy Imgui.ini")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/configuration/imgui.ini"  DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+message("************************************\n")
+
 
 # Install haarcascade vision files
 message("************************************")

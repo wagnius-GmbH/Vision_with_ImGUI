@@ -21,7 +21,6 @@ using namespace std;
 // implot
 #include <implot.h>
 
-
 // opencv dependencies 
 #include <opencv2/opencv.hpp>
 #include "opencv2/objdetect.hpp"
@@ -34,9 +33,9 @@ using namespace std;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-
+// Project files
 #include "Enum.h"
-
+#include "configuration/Version.h"
 
 // Suppress Visual Studio warnings
 #ifdef _MSC_VER

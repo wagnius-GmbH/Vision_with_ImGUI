@@ -1,4 +1,5 @@
-## CMakeTemplate
+## Vision with ImGui
 
-Template project to use ImGui and ImPlot with vcpkg
+### Version
+0.1.0
 

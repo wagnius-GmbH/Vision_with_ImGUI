@@ -11,6 +11,11 @@
 /// <returns>int</returns>
 int main(int argc, const char** argv)
 {
+	std::cout << "Project version: " 
+		<< PROJECT_MAJOR_VERSION 
+		<< "." << PROJECT_MINOR_VERSION 
+		<< "." << PROJECT_PATCH_VERSION 
+		<< std::endl << std::endl;
 
 	// Setup window
 	if (!glfwInit())
@@ -25,7 +30,7 @@ int main(int argc, const char** argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 	// Create window with graphics context
-	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Dear ImGui - Example", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, APP_NAME, NULL, NULL);
 	if (window == NULL)
 		return 1;
 	glfwMakeContextCurrent(window);
