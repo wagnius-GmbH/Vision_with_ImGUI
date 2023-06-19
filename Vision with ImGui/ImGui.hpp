@@ -176,8 +176,6 @@ public:
 		static float x[n_faces];
 		static float y[n_faces];
 
-		cout << "Detected faces: " << facedetectionCam0.found_faces.size() << endl;
-
 		// get actuall face positions from detection and store in buffer vector
 		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
 		{
@@ -215,9 +213,6 @@ public:
 			if (facePos.size() > 1) {
 				for (int ii = 0; ii < (facePos.size() - 1); ii++)
 				{
-					euklidianDistance.push_back(sqrt(pow((facePos[ii].x) - (facePos[ii + 1].x), 2) + pow((facePos[ii].y) - (facePos[ii + 1].y), 2)));
-
-					if (euklidianDistance[ii] < 50) {
 						xs1[ii] = (float)facePos[ii].x;
 						ys1[ii] = (float)facePos[ii].y;
 						lastPos1.x = xs1[ii];
@@ -226,33 +221,16 @@ public:
 						ys2[ii] = (float)facePos[ii].y;
 						lastPos2.x = xs2[ii];
 						lastPos2.y = ys2[ii];
-					}
-					else
-					{
-						xs1[ii] = lastPos1.x;
-						ys1[ii] = lastPos1.y;
-						xs2[ii] = lastPos2.x;
-						ys2[ii] = lastPos2.y;
-					}
 				}
 			}
 			else 
 			{
 				for (int ii = 0; ii < (facePos.size() - 1); ii++)
 				{
-					euklidianDistance.push_back(sqrt(pow((facePos[ii].x) - (facePos[ii + 1].x), 2) + pow((facePos[ii].y) - (facePos[ii + 1].y), 2)));
-
-					if (euklidianDistance[ii] < 50) {
-						xs1[ii] = (float)facePos[ii].x;
-						ys1[ii] = (float)facePos[ii].y;
-						lastPos1.x = xs1[ii];
-						lastPos1.y = ys1[ii];
-					}
-					else
-					{
-						xs1[ii] = lastPos1.x;
-						ys1[ii] = lastPos1.y;
-					}
+					xs1[ii] = (float)facePos[ii].x;
+					ys1[ii] = (float)facePos[ii].y;
+					lastPos1.x = xs1[ii];
+					lastPos1.y = ys1[ii];
 				}
 			}
 			xs1[19] = lastPos1.x;

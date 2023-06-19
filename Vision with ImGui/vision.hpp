@@ -229,7 +229,7 @@ private:
 
 public:
 
-	std::vector<ImVec2> found_faces;
+	std::vector<ImVec2> found_faces, found_faces_last;
 
 	/// <summary>
 	/// Constructor of facedetection class
@@ -246,6 +246,8 @@ public:
 		{
 			cerr << "ERROR: Could not load classifier cascade" << endl;
 		}
+		found_faces      = { ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f) };
+		found_faces_last = { ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f) };
 	}
 
 	/// <summary>
@@ -362,6 +364,30 @@ public:
 			for (int ii = (found_faces.size() - 1); ii > 1; ii--)
 			{	
 				found_faces.erase(found_faces.begin() + ii);				
+			}
+		}
+		
+		// Sort faces as according to the last vision result
+		if (found_faces.size() > 1) {
+			float distance_r0_0 = sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
+			float distance_r0_1 = sqrt(pow((found_faces[1].x) - (found_faces_last[0].x), 2) + pow((found_faces[1].y) - (found_faces_last[0].y), 2));
+			if (distance_r0_0 > distance_r0_1) {
+				for (int ii = (found_faces_last.size() - 1); ii > 1; ii--)
+				{
+					found_faces_last.erase(found_faces_last.begin() + ii);
+				}
+				for (int ii = (found_faces_last.size() - 1); ii > 1; ii--)
+				{
+					found_faces_last.push_back(found_faces[ii]);
+				}
+				//swap
+				found_faces = found_faces_last;
+				cout << "swap" << endl;
+			}
+			else
+			{
+				//swap
+				found_faces_last = found_faces;
 			}
 		}
 	}
