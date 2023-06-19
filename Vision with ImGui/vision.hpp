@@ -1,5 +1,4 @@
 #include "header.h"
-
 /// <summary>
 /// Webcam handling
 /// </summary>
