@@ -19,12 +19,26 @@ struct PictDim {
 /// structur to save float points
 /// </summary>
 struct Point2D {
-	float  x, y;
+	float x, y;
+
 	constexpr Point2D() : x(0), y(0) { }
 	constexpr Point2D(float _x, float _y) : x(_x), y(_y) { }
-	int& operator[] (size_t idx) { IM_ASSERT(idx == 0 || idx == 1); return ((int*)(void*)(char*)this)[idx]; } // We very rarely use this [] operator, so the assert overhead is fine.
-	int  operator[] (size_t idx) const { IM_ASSERT(idx == 0 || idx == 1); return ((const int*)(const void*)(const char*)this)[idx]; }
+
+	constexpr size_t size() const {
+		return 2;
+	}
+
+	int& operator[] (size_t idx) {
+		assert(idx == 0 || idx == 1);
+		return reinterpret_cast<int*>(this)[idx];
+	}
+
+	int operator[] (size_t idx) const {
+		assert(idx == 0 || idx == 1);
+		return reinterpret_cast<const int*>(this)[idx];
+	}
 };
+
 
 /// <summary>
 /// ImGui Window creation
@@ -43,11 +57,13 @@ private:
 	facedetection facedetectionCam0;
 	Point2D lastPos1, lastPos2;
 
+	int cnt1 = 0;
+	int cnt2 = 0;
+
 public:
 
 	CameraClass cam_access0;
 	CameraClass cam_access1;
-	ImVector<ImPlotPoint> facePos;
 
 	/// <summary>
 	/// Constructor
@@ -172,6 +188,7 @@ public:
 		// Vision
 		facedetectionCam0.detectAndDraw(cam_access0.frame);
 		
+		///////////////////////////////////////////////////////////////////////////////////////////////
 		// Actual vision results
 		static float x[n_faces];
 		static float y[n_faces];
@@ -179,16 +196,10 @@ public:
 		// get actuall face positions from detection and store in buffer vector
 		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
 		{
-			facePos.push_front(ImPlotPoint((facedetectionCam0.found_faces[ii].x), -(facedetectionCam0.found_faces[ii].y)));
 			x[ii] =  (float)facedetectionCam0.found_faces[ii].x;
 			y[ii] = -(float)facedetectionCam0.found_faces[ii].y;
 		}
-		// delete if the buffer full
-		if (facePos.size() > n_points) {
-			facePos.erase(facePos.begin());
-		}
-
-		///////////////////////////////////////////////////////////////////////////
+		
 		// Show actually detected facedetection in Plot
 		ImGui::Begin("Facedetection");
 		static int size = n_points/2;
@@ -202,41 +213,49 @@ public:
 			ImPlot::EndPlot();
 		}
 
+
+		///////////////////////////////////////////////////////////////////////////////////////////////
 		// Show face Motion trace in Plot
 		static float xs1[n_points], ys1[n_points];
 		static float xs2[n_points], ys2[n_points];
+
+		// push to diagram 
+		if (facedetectionCam0.found_faces.size() == 1) 
+		{
+			xs1[cnt1] = (float)facedetectionCam0.found_faces[0].x;
+			ys1[cnt1] = -(float)facedetectionCam0.found_faces[0].y;
+			lastPos1.x = xs1[cnt1];
+			lastPos1.y = ys1[cnt1];
+			cnt1++;
+		}
+		else if (facedetectionCam0.found_faces.size() == 2)
+		{
+			xs1[cnt1] = (float)facedetectionCam0.found_faces[0].x;
+			ys1[cnt1] = -(float)facedetectionCam0.found_faces[0].y;
+			xs2[cnt2] = (float)facedetectionCam0.found_faces[1].x;
+			ys2[cnt2] = -(float)facedetectionCam0.found_faces[1].y;
+			lastPos1.x = xs1[cnt1];
+			lastPos1.y = ys1[cnt1];
+			lastPos2.x = xs2[cnt2];
+			lastPos2.y = ys2[cnt2];
+			cnt1++;
+			cnt2++;
+		}	
+		
+		if (cnt1 > 20) 
+			cnt1 = 0;
+		
+		if (cnt2 > 20)
+			cnt2 = 0;
+
+		for (int ii = 0; ii < 20; ii++)
+		{
+			cout << "xs1: " << xs1[ii] << " ys1: " << ys1[ii] << "xs2: " << xs2[ii] << " ys2: " << ys2[ii] << endl;
+		}
+
 		if (ImPlot::BeginPlot("Show motion trace")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			// Euklidian Distance
-			std::vector<float>  euklidianDistance;
-			if (facePos.size() > 1) {
-				for (int ii = 0; ii < (facePos.size() - 1); ii++)
-				{
-						xs1[ii] = (float)facePos[ii].x;
-						ys1[ii] = (float)facePos[ii].y;
-						lastPos1.x = xs1[ii];
-						lastPos1.y = ys1[ii];
-						xs2[ii] = (float)facePos[ii].x;
-						ys2[ii] = (float)facePos[ii].y;
-						lastPos2.x = xs2[ii];
-						lastPos2.y = ys2[ii];
-				}
-			}
-			else 
-			{
-				for (int ii = 0; ii < (facePos.size() - 1); ii++)
-				{
-					xs1[ii] = (float)facePos[ii].x;
-					ys1[ii] = (float)facePos[ii].y;
-					lastPos1.x = xs1[ii];
-					lastPos1.y = ys1[ii];
-				}
-			}
-			xs1[19] = lastPos1.x;
-			ys1[19] = lastPos1.y;
-			xs2[19] = lastPos2.x;
-			ys2[19] = lastPos2.y;
 			ImPlot::PlotScatter("Face 1", xs1, ys1, n_points, ImPlotLineFlags_Segments);
 			ImPlot::PlotScatter("Face 2", xs2, ys2, n_points, ImPlotLineFlags_Segments);
 			ImPlot::EndPlot();
