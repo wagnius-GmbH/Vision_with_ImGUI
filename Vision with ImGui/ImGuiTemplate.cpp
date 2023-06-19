@@ -4,7 +4,6 @@
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 #include "ImGui.hpp"
-#include "Version.h"
 
 /// <summary>
 /// ImGui Template 
@@ -31,7 +30,7 @@ int main(int argc, const char** argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 	// Create window with graphics context
-	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Dear ImGui - Example", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, APP_NAME, NULL, NULL);
 	if (window == NULL)
 		return 1;
 	glfwMakeContextCurrent(window);

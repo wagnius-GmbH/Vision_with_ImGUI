@@ -10,7 +10,7 @@ set(PROJECT_MINOR_VERSION "1")
 set(PROJECT_PATCH_VERSION "0")
 
 set(PROJECT_VERSION    ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
-
+set(APP_NAME "Vision with ImGui")
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/Version.h.in"
@@ -54,8 +54,6 @@ message("Vision destiantion = ${CMAKE_CURRENT_BINARY_DIR}/Vision")
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_eye_tree_eyeglasses.xml  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_frontalface_alt.xml  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
 message("************************************\n")
-
-
 
 
 # ImGui dependecies 
