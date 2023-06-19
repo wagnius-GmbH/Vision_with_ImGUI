@@ -3,13 +3,27 @@
 #
 
 # Fügen Sie der ausführbaren Datei dieses Projekts eine Quelle hinzu.
-add_executable (${PROJECT_NAME} "ImGuiTemplate.cpp"  "header.h" "ImGui.hpp" "Enum.h" "Vision.hpp" "Version.h.in")
+add_executable (${PROJECT_NAME} "ImGuiTemplate.cpp"  "header.h" "ImGui.hpp" "Enum.h" "Vision.hpp" "Version.h.in" "Version.h")
+
+set(PROJECT_MAJOR_VERSION "0")
+set(PROJECT_MINOR_VERSION "1")
+set(PROJECT_PATCH_VERSION "0")
+
+set(PROJECT_VERSION    ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
+
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/Version.h.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Version.h"
+    @ONLY
+)
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/Version.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/Version.h"
     @ONLY
 )
+
 
 message("\n************************************")
 message("Project directory = ${PROJECT_SOURCE_DIR}")
@@ -26,6 +40,13 @@ message("Image destiantion = ${CMAKE_CURRENT_BINARY_DIR}/picts/wagnius.png")
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/picts/wagnius.png  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/picts)
 message("************************************\n")
 
+# Install Logos/icons
+message("************************************")
+message("Copy Imgui.ini")
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini  DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+message("************************************\n")
+
+
 # Install haarcascade vision files
 message("************************************")
 message("Vision source = ${CMAKE_CURRENT_SOURCE_DIR}/Vision/")
@@ -33,6 +54,8 @@ message("Vision destiantion = ${CMAKE_CURRENT_BINARY_DIR}/Vision")
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_eye_tree_eyeglasses.xml  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_frontalface_alt.xml  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
 message("************************************\n")
+
+
 
 
 # ImGui dependecies 

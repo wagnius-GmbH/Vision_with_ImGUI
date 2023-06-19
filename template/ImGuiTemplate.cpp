@@ -4,6 +4,7 @@
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 #include "ImGui.hpp"
+#include "Version.h"
 
 /// <summary>
 /// ImGui Template 
@@ -11,6 +12,11 @@
 /// <returns>int</returns>
 int main(int argc, const char** argv)
 {
+	std::cout << "Project version: " 
+		<< PROJECT_MAJOR_VERSION 
+		<< "." << PROJECT_MINOR_VERSION 
+		<< "." << PROJECT_PATCH_VERSION 
+		<< std::endl << std::endl;
 
 	// Setup window
 	if (!glfwInit())

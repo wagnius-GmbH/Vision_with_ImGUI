@@ -8,8 +8,3 @@ project ("template")
 # Schließen Sie Unterprojekte ein.
 add_subdirectory ("template")
 
-set(PROJECT_MAJOR_VERSION 0)
-set(PROJECT_MINOR_VERSION 1)
-set(PROJECT_PATCH_VERSION 0)
-
-
