@@ -48,9 +48,9 @@ message("Image destiantion = ${CMAKE_CURRENT_BINARY_DIR}/picts/wagnius.png")
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/picts/wagnius.png  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/picts)
 message("************************************\n")
 
-# Install Logos/icons
+# Install ini files
 message("************************************")
-message("Copy Imgui.ini")
+message("Copy Imgui.ini to ${CMAKE_CURRENT_BINARY_DIR}/Imgui.ini")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/configuration/imgui.ini"  DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 message("************************************\n")
 
@@ -59,8 +59,8 @@ message("************************************\n")
 message("************************************")
 message("Vision source = ${CMAKE_CURRENT_SOURCE_DIR}/Vision/")
 message("Vision destiantion = ${CMAKE_CURRENT_BINARY_DIR}/Vision")
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_eye_tree_eyeglasses.xml  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_frontalface_alt.xml  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_eye_tree_eyeglasses.xml"  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_frontalface_alt.xml"  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
 message("************************************\n")
 
 
