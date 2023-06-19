@@ -33,6 +33,9 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
 	void readFrame() {
 		frame.release();
 		if (!vid_capture.isOpened())
@@ -48,16 +51,26 @@ public:
 			cv::flip(frame, frame, flip_h); 
 		}
 	}
-
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
 	cv::Mat getFrame() {
 		readFrame();
 		return frame;
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
 	void reseize(int x,int y) {
 		cv::resize(frame, frame, cv::Size(x, y));
 	}
-
+	/// <summary>
+	/// 
+	/// </summary>
 	void showImage() {
 		cv::Mat frame;
 		// Capture frames from cam
@@ -86,12 +99,19 @@ public:
 	int image_width;
 	int image_height;
 
+	/// <summary>
+	/// 
+	/// </summary>
 	VideoForImGui() {
 		// Image Data 
 		image_width = 0;
 		image_height = 0;
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="fileNamePath"></param>
 	void loadImage(char const* fileNamePath) {
 		unsigned char* image_data = stbi_load(fileNamePath, &image_width, &image_height, NULL, 4);
 		if (image_data != NULL) {
@@ -166,6 +186,11 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="new_width"></param>
+	/// <param name="new_height"></param>
 	void resizeImage(int new_width, int new_height) {
 		if (new_width != image_width || new_height != image_height) {
 			image_width = new_width;
@@ -190,6 +215,9 @@ public:
 };
 
 
+/// <summary>
+/// face detection class
+/// </summary>
 class facedetection {
 private:
 	cv::CascadeClassifier cascade, nestedCascade;
@@ -203,6 +231,9 @@ public:
 
 	std::vector<ImVec2> found_faces;
 
+	/// <summary>
+	/// Constructor of facedetection class
+	/// </summary>
 	facedetection()
 	{
 		cascadeName = "Vision/haarcascade_frontalface_alt.xml";
@@ -217,6 +248,10 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// find faces store information 
+	/// </summary>
+	/// <param name="img"></param>
 	void detectAndDraw(cv::Mat& img)
 	{
 		vector<cv::Rect> faces;

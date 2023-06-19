@@ -1,6 +1,9 @@
 
 #include "vision.hpp"
 
+/// <summary>
+/// struct to save int dimensions (pixels)
+/// </summary>
 struct PictDim {
 	int  x, y;
 	constexpr PictDim() : x(0), y(0) { }
@@ -12,6 +15,9 @@ struct PictDim {
 #endif
 };
 
+/// <summary>
+/// structur to save float points
+/// </summary>
 struct Point2D {
 	float  x, y;
 	constexpr Point2D() : x(0), y(0) { }
@@ -43,6 +49,9 @@ public:
 	CameraClass cam_access1;
 	ImVector<ImPlotPoint> facePos;
 
+	/// <summary>
+	/// Constructor
+	/// </summary>
 	UseImGui() {
 		// webcam
 		cam_access0.init(cam0);
@@ -54,6 +63,11 @@ public:
 		lastPos2 = Point2D(0, 0);
 	}
 
+	/// <summary>
+	/// Init GLF Window
+	/// </summary>
+	/// <param name="window"></param>
+	/// <param name="glsl_version"></param>
 	void Init(GLFWwindow* window, const char* glsl_version) {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -70,12 +84,19 @@ public:
 		ImGui::StyleColorsDark();
 	}
 
+	/// <summary>
+	/// ImGUI New Frame
+	/// </summary>
 	void NewFrame() {
 		// feed inputs to dear imgui, start new frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	};
+
+	/// <summary>
+	/// ImGui Update
+	/// </summary>
 	void Update() {
 		// Webcam frames
 		cam_access0.readFrame();
@@ -84,12 +105,19 @@ public:
 		ShowVideo();
 		ShowPicture();
 	}
+
+	/// <summary>
+	/// ImGui Render
+	/// </summary>
 	void Render() {
 		// Render dear imgui into screen
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
+	/// <summary>
+	/// ImGui shutdown
+	/// </summary>
 	void Shutdown() {
 		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();
@@ -98,6 +126,9 @@ public:
 		ImGui::DestroyContext();
 	}
 
+	/// <summary>
+	/// Update Show video
+	/// </summary>
 	void ShowVideo() {
 		// Show video cam0
 		ImGui::Begin("cam0");
@@ -112,6 +143,9 @@ public:
 		ImGui::End();
 	};
 
+	/// <summary>
+	/// Update Show picture
+	/// </summary>
 	void ShowPicture() {
 		// Show picture ()
 		ImGui::Begin("Picture");
@@ -131,6 +165,9 @@ public:
 		ImGui::End();
 	}
 
+	/// <summary>
+	/// Update Show face detection
+	/// </summary>
 	void ShowFaceDetection() {
 		// Vision
 		facedetectionCam0.detectAndDraw(cam_access0.frame);
