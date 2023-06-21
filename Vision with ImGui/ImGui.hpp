@@ -145,16 +145,11 @@ public:
 	void ShowFaceDetection() {
 		// Vision
 		facedetectionCam0.detectAndDraw(cam_access0.frame);
-		
-		///////////////////////////////////////////////////////////////////////////////////////////////
 		// Actual vision results
 		static float x[n_faces];
 		static float y[n_faces];
-
-		static int size = n_points;
 		static ScrollingBuffer faceTrace1(n_points);
 		static ScrollingBuffer faceTrace2(n_points);
-				
 		// get actuall face positions from detection
 		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
 		{
@@ -169,41 +164,40 @@ public:
 			faceTrace1.AddPoint((float)facedetectionCam0.found_faces[0].x, -(float)facedetectionCam0.found_faces[0].y);
 			faceTrace2.AddPoint((float)facedetectionCam0.found_faces[1].x, -(float)facedetectionCam0.found_faces[1].y);
 		}
-
-		
+		///////////////////////////////////////////////////////////////////////////////////////////////
 		// Show actually detected facedetection in Plot
 		ImGui::Begin("Facedetection");
-		ImGui::SliderInt("Size", &size, 0, n_points);
-
-		if (ImPlot::BeginPlot("Actuall face Position")) {
+		if (ImGui::Button("Remove a Face")) {
+			if (facedetectionCam0.n_ever_found_faces > 0) {
+				facedetectionCam0.n_ever_found_faces--;
+			}
+		}
+		if (ImPlot::BeginPlot("Actuall face position")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			if (facedetectionCam0.n_ever_found_faces > 0) {
-				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 20, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 20);
 				ImPlot::PlotScatter("Face 1", &x[0], &y[0], 1, ImPlotLineFlags_Segments);
 			}
 			if (facedetectionCam0.n_ever_found_faces > 1) {
-				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 20, ImPlot::GetColormapColor(2), IMPLOT_AUTO, ImPlot::GetColormapColor(2));
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 20);
 				ImPlot::PlotScatter("Face 2", &x[1], &y[1], 1, ImPlotLineFlags_Segments);
 			}
 			ImPlot::EndPlot();
 		}
-
 		///////////////////////////////////////////////////////////////////////////////////////////////
 		// Show face Motion trace in Plot
-		if (ImPlot::BeginPlot("##Scrolling")) {
+		if (ImPlot::BeginPlot("Face tracking")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			if (facedetectionCam0.n_ever_found_faces > 0) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6);
-				ImPlot::PlotScatter("Facetrace 1", &faceTrace1.Data[0].x, &faceTrace1.Data[0].y, size, 0, faceTrace1.Offset, 2 * sizeof(float));
+				ImPlot::PlotScatter("Facetrace 1", &faceTrace1.Data[0].x, &faceTrace1.Data[0].y, n_points, 0, faceTrace1.Offset, 2 * sizeof(float));
 			}
 			if (facedetectionCam0.n_ever_found_faces > 1) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6);
-				ImPlot::PlotScatter("Facetrace 2", &faceTrace2.Data[0].x, &faceTrace2.Data[0].y, size, 0, faceTrace2.Offset, 2 * sizeof(float));
+				ImPlot::PlotScatter("Facetrace 2", &faceTrace2.Data[0].x, &faceTrace2.Data[0].y, n_points, 0, faceTrace2.Offset, 2 * sizeof(float));
 			}
 			ImPlot::EndPlot();
 		}
-			
-		
 		ImGui::End();
 	};
 };

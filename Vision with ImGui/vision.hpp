@@ -437,9 +437,6 @@ public:
 				found_faces[1].x = temp.x;
 				found_faces[1].y = temp.y;
 			}
-			else {
-				cout << "// two faces found and two in all runns so keep last positions" << endl;
-			}
 		}
 	}
 };
