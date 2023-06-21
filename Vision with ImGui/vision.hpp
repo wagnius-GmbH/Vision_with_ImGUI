@@ -220,9 +220,10 @@ public:
 /// </summary>
 class facedetection {
 private:
+	// member varialbles
 	cv::CascadeClassifier cascade, nestedCascade;
 	double scale;
-	bool n_faces_found_ever;
+	int n_ever_found_faces_last;
 	string cascadeName;
 	string nestedCascadeName;
 	cv::Point center;
@@ -230,6 +231,7 @@ private:
 public:
 	// member varialbles
 	std::vector<ImVec2> found_faces, found_faces_last;
+	int n_ever_found_faces;
 
 	/// <summary>
 	/// Constructor of facedetection class
@@ -248,7 +250,8 @@ public:
 		}
 		found_faces      = { ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f) };
 		found_faces_last = { ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f) };
-		n_faces_found_ever = false;
+		n_ever_found_faces = 0;
+		n_ever_found_faces_last = 0;
 	}
 
 	/// <summary>
@@ -260,10 +263,13 @@ public:
 		vector<cv::Rect> faces;
 		// Handle found faces actualize 
 		found_faces_last.clear();
-		for (int ii = 0; ii < found_faces.size(); ii++)
-		{
-			found_faces_last[ii].x = found_faces[ii].x;
-			found_faces_last[ii].y = found_faces[ii].y;
+		if (n_ever_found_faces > 0) {
+			found_faces_last.resize(found_faces.size());
+			for (int ii = 0; ii < found_faces.size(); ii++)
+			{
+				found_faces_last[ii].x = found_faces[ii].x;
+				found_faces_last[ii].y = found_faces[ii].y;
+			}
 		}
 		found_faces.clear();
 
@@ -352,12 +358,13 @@ public:
 				choose_face++;
 			}
 		}
-		// If deviation in pixels is too small it is considered the same face
+
+		// If the pixel deviation is too small considered it as the same face
 		float deviation = 20;
  		for (int ii = int(found_faces.size()-1); ii > 0; ii--)
 		{
 			float distance_r = (float)sqrt(pow((found_faces[ii-1].x) - (found_faces[ii].x), 2) + pow((found_faces[ii-1].y) - (found_faces[ii].y), 2));
-			cout << distance_r << endl;
+			//cout << distance_r << endl;
 			if (distance_r < deviation)
 			{
 				found_faces.erase(found_faces.begin() + ii);
@@ -372,47 +379,63 @@ public:
 				found_faces.erase(found_faces.begin() + ii);				
 			}
 		}
-		// if ever a second face has been found ?
-		if (found_faces.size() > 1)
-			n_faces_found_ever = true;
 
-		// Handling ever found faces 
-		if (n_faces_found_ever) {
-			// if no faces have been found this run keep old positions
-			if (found_faces.size() == 0) 
+		////////////////////////////////////////////////////////////////////
+		// Update number of ever found faces 
+		//if (found_faces.size() == 0 && n_ever_found_faces == 0) // Nothing to do
+		if (found_faces.size() == 1 && n_ever_found_faces == 0) 
+		{
+			n_ever_found_faces = 1;
+		}else if (found_faces.size() == 2 && n_ever_found_faces == 0) 
+		{
+			n_ever_found_faces = 2;
+		}
+		////////////////////////////////////////////////////////////////////
+		// Handle the found faces 
+		else if (found_faces.size() == 0 && n_ever_found_faces == 1) // single face disapears so keep last position
+		{
+			found_faces.push_back(ImVec2(found_faces_last[0].x, found_faces_last[0].y));
+		}
+		//else if (found_faces.size() == 1 && n_ever_found_faces == 1) // single face found in this and all runns so nothing to do
+		else if (found_faces.size() == 2 && n_ever_found_faces == 1) // two faces found but only one in all runns
+		{
+			n_ever_found_faces = 2;
+		}
+		else if (found_faces.size() == 0 && n_ever_found_faces == 2) // no faces found but two in all runns so keep last positions
+		{
+			found_faces.push_back(ImVec2(found_faces_last[0].x, found_faces_last[0].y));
+			found_faces.push_back(ImVec2(found_faces_last[1].x, found_faces_last[1].y));
+		}
+		else if (found_faces.size() == 1 && n_ever_found_faces == 2)  // single face found but two in all runns so keep last positions
+		{
+			// Distance check old face positionto newly found face position
+			float distanceNewFoundFaceToOldFoundFace0 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
+			float distanceNewFoundFaceToOldFoundFace1 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[1].x), 2) + pow((found_faces[0].y) - (found_faces_last[1].y), 2));
+			// if distance for face0 to face0 is shorter keep the order
+			if (distanceNewFoundFaceToOldFoundFace0 > distanceNewFoundFaceToOldFoundFace1)
 			{
-				found_faces = found_faces_last;
+				found_faces.push_back(ImVec2(found_faces_last[0].x, found_faces_last[0].y));
 			}
-			// if a face disapears keep the last position
-			else if (found_faces.size() == 1) 
+			// if distance for face0 to face is longer swap the order 
+			else
 			{
-				// Distance check old face positionto newly found face position
-				float distanceNewFoundFaceToOldFoundFace0 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
-				float distanceNewFoundFaceToOldFoundFace1 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[1].x), 2) + pow((found_faces[0].y) - (found_faces_last[1].y), 2));
-				// if distance for face0 to face0 is shorter keep the order 
-				if (distanceNewFoundFaceToOldFoundFace0 > distanceNewFoundFaceToOldFoundFace1) 
-				{
-					found_faces[1] = found_faces_last[1];
-				}
-				// if distance for face0 to face is longer swap the order 
-				else 
-				{
-					found_faces[0] = found_faces_last[1];
-					found_faces[1] = found_faces[0];
-				}
+				found_faces.push_back(ImVec2(0, 0));
+				found_faces[0] = ImVec2(found_faces[1].x, found_faces[1].y);
+				found_faces[1] = ImVec2(found_faces_last[1].x, found_faces_last[1].y);
 			}
-			// if two faces have beeb found
-			else 
+		}
+		else if (found_faces.size() == 2 && n_ever_found_faces == 2) // two faces found and two in all runns so keep last positions
+		{
+			// Distance check old face positionto newly found face position
+			float distanceNewFoundFaceToOldFoundFace0 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
+			float distanceNewFoundFaceToOldFoundFace1 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[1].x), 2) + pow((found_faces[0].y) - (found_faces_last[1].y), 2));
+			// if distance for face0 to face is longer swap the order 
+			if (distanceNewFoundFaceToOldFoundFace0 > distanceNewFoundFaceToOldFoundFace1)
 			{
-				// Distance check old face positionto newly found face position
-				float distanceNewFoundFaceToOldFoundFace0 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
-				float distanceNewFoundFaceToOldFoundFace1 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[1].x), 2) + pow((found_faces[0].y) - (found_faces_last[1].y), 2));
-				// if distance for face0 to face1 is shorter swap the order 
-				if (distanceNewFoundFaceToOldFoundFace0 < distanceNewFoundFaceToOldFoundFace1)
-				{
-					found_faces[0] = found_faces[1];
-					found_faces[1] = found_faces[0];
-				}
+				found_faces[0].x = found_faces[1].x;
+				found_faces[0].y = found_faces[1].y;
+				found_faces[1].x = found_faces[0].x;
+				found_faces[1].y = found_faces[0].y;
 			}
 		}
 	}
