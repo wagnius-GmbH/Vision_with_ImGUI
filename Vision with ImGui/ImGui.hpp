@@ -172,16 +172,13 @@ public:
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
 			ImPlot::PlotScatter("Face 1", &x[0], &y[0], 1, ImPlotLineFlags_Segments);
-			if (facedetectionCam0.found_faces.size() > 1) {
-				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(2), IMPLOT_AUTO, ImPlot::GetColormapColor(2));
-				ImPlot::PlotScatter("Face 2", &x[1], &y[1], 1, ImPlotLineFlags_Segments);
-			}
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(2), IMPLOT_AUTO, ImPlot::GetColormapColor(2));
+			ImPlot::PlotScatter("Face 2", &x[1], &y[1], 1, ImPlotLineFlags_Segments);
 			ImPlot::EndPlot();
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////
 		// Show face Motion trace in Plot
-
 		if (ImPlot::BeginPlot("##Scrolling")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6);
