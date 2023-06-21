@@ -2,45 +2,6 @@
 #include "vision.hpp"
 
 /// <summary>
-/// struct to save int dimensions (pixels)
-/// </summary>
-struct PictDim {
-	int  x, y;
-	constexpr PictDim() : x(0), y(0) { }
-	constexpr PictDim(int _x, int _y) : x(_x), y(_y) { }
-	int& operator[] (size_t idx) { IM_ASSERT(idx == 0 || idx == 1); return ((int*)(void*)(char*)this)[idx]; } // We very rarely use this [] operator, so the assert overhead is fine.
-	int  operator[] (size_t idx) const { IM_ASSERT(idx == 0 || idx == 1); return ((const int*)(const void*)(const char*)this)[idx]; }
-#ifdef IM_VEC2_CLASS_EXTRA
-	IM_VEC2_CLASS_EXTRA     // Define additional constructors and implicit cast operators in imconfig.h to convert back and forth between your math types and ImVec2.
-#endif
-};
-
-/// <summary>
-/// structur to save float points
-/// </summary>
-struct Point2D {
-	float x, y;
-
-	constexpr Point2D() : x(0), y(0) { }
-	constexpr Point2D(float _x, float _y) : x(_x), y(_y) { }
-
-	constexpr size_t size() const {
-		return 2;
-	}
-
-	int& operator[] (size_t idx) {
-		assert(idx == 0 || idx == 1);
-		return reinterpret_cast<int*>(this)[idx];
-	}
-
-	int operator[] (size_t idx) const {
-		assert(idx == 0 || idx == 1);
-		return reinterpret_cast<const int*>(this)[idx];
-	}
-};
-
-
-/// <summary>
 /// ImGui Window creation
 /// </summary>
 class UseImGui {
@@ -193,30 +154,40 @@ public:
 		static float x[n_faces];
 		static float y[n_faces];
 
-		// get actuall face positions from detection and store in buffer vector
+		static int size = n_points / 2;
+		static ScrollingBuffer faceTrace(n_points);
+
+		// get actuall face positions from detection and store in buffer
 		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
 		{
 			x[ii] =  (float)facedetectionCam0.found_faces[ii].x;
 			y[ii] = -(float)facedetectionCam0.found_faces[ii].y;
+			faceTrace.AddPoint ((float)facedetectionCam0.found_faces[ii].x, -(float)facedetectionCam0.found_faces[ii].y);
 		}
 		
-
 		// Show actually detected facedetection in Plot
 		ImGui::Begin("Facedetection");
-		static int size = n_points/2;
 		ImGui::SliderInt("Size", &size,0,n_points);
 
 		if (ImPlot::BeginPlot("Actuall face Position")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
-			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
 			ImPlot::PlotScatter("Face 1", &x[0], &y[0], n_points, ImPlotLineFlags_Segments);
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
 			ImPlot::PlotScatter("Face 2", &x[1], &y[1], n_points, ImPlotLineFlags_Segments);
 			ImPlot::EndPlot();
 		}
 
-
 		///////////////////////////////////////////////////////////////////////////////////////////////
 		// Show face Motion trace in Plot
+
+		if (ImPlot::BeginPlot("##Scrolling")) {
+			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
+			ImPlot::PlotScatter("Facetrace", &faceTrace.Data[0].x, &faceTrace.Data[0].y, faceTrace.Data.size(), 0, faceTrace.Offset, 2 * sizeof(float));
+			ImPlot::EndPlot();
+		}
+
 		static float xs1[n_points], ys1[n_points];
 		static float xs2[n_points], ys2[n_points];
 
@@ -249,16 +220,18 @@ public:
 		if (cnt2 > 20)
 			cnt2 = 0;
 
+		/*
 		for (int ii = 0; ii < 20; ii++)
 		{
 			cout << "xs1: " << xs1[ii] << " ys1: " << ys1[ii] << "xs2: " << xs2[ii] << " ys2: " << ys2[ii] << endl;
 		}
+		*/
 
 		if (ImPlot::BeginPlot("Show motion trace")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
-			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotScatter("Face 1", xs1, ys1, n_points, ImPlotLineFlags_Segments);
-			ImPlot::PlotScatter("Face 2", xs2, ys2, n_points, ImPlotLineFlags_Segments);
+			ImPlot::PushStyleVar(ImPlotStyleVar_Marker, ImPlotMarker_None);
+			ImPlot::PlotScatter("Face 1", xs1, ys1, size);
+			ImPlot::PlotScatter("Face 2", xs2, ys2, size);
 			ImPlot::EndPlot();
 		}
 		ImGui::End();
