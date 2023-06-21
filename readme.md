@@ -1,6 +1,7 @@
 ## Vision with ImGui
-Projekt um mit ImGui ein Face Tracking zu realisieren. 
 
 ### Version
 0.2.0
+\
+This App can track your face and show the results in ImPlot on ImGui. It uses OpenCV Haarcascade face detection. 
 

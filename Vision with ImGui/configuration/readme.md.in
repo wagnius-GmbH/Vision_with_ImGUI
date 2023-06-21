@@ -1,6 +1,7 @@
 ## @APP_NAME@
-Projekt um mit ImGui ein Face Tracking zu realisieren. 
 
 ### Version
 @PROJECT_VERSION@
+\
+This App can track your face and show the results in ImPlot on ImGui. It uses OpenCV Haarcascade face detection. 
 
