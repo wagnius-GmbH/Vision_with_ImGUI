@@ -1,4 +1,5 @@
-#include "header.h"
+#include "DataStructures.hpp"
+
 /// <summary>
 /// Webcam handling
 /// </summary>
@@ -230,7 +231,7 @@ private:
 
 public:
 	// member varialbles
-	std::vector<ImVec2> found_faces, found_faces_last;
+	std::vector<CamResult3D> found_faces, found_faces_last;
 	int n_ever_found_faces;
 
 	/// <summary>
@@ -248,8 +249,8 @@ public:
 		{
 			cerr << "ERROR: Could not load classifier cascade" << endl;
 		}
-		found_faces      = { ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f) };
-		found_faces_last = { ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f) };
+		found_faces      = { CamResult3D(0.0f, 0.0f, 0.0f), CamResult3D(0.0f, 0.0f, 0.0f) };
+		found_faces_last = { CamResult3D(0.0f, 0.0f, 0.0f), CamResult3D(0.0f, 0.0f, 0.0f) };
 		n_ever_found_faces = 0;
 		n_ever_found_faces_last = 0;
 	}
@@ -340,7 +341,7 @@ public:
 			// consider a face only if eyes are found
 			if (nestedObjects.size() > 1) {
 				// store if eyes are found
-				found_faces.push_back(ImVec2((float)center.x, (float)center.y));
+				found_faces.push_back(CamResult3D((float)center.x, (float)center.y, 12));
 				// Draw Face boundries
 				circle(img, center, radius, color, 3, 8, 0);
 				center.x = cvRound((r.x + r.width * 0.5) * scale);
@@ -394,7 +395,7 @@ public:
 		// Handle the found faces 
 		else if (found_faces.size() == 0 && n_ever_found_faces == 1) // single face disapears so keep last position
 		{
-			found_faces.push_back(ImVec2(found_faces_last[0].x, found_faces_last[0].y));
+			found_faces.push_back(CamResult3D(found_faces_last[0].x, found_faces_last[0].y, found_faces_last[0].z));
 		}
 		//else if (found_faces.size() == 1 && n_ever_found_faces == 1) // single face found in this and all runns so nothing to do
 		else if (found_faces.size() == 2 && n_ever_found_faces == 1) // two faces found but only one in all runns
@@ -403,39 +404,37 @@ public:
 		}
 		else if (found_faces.size() == 0 && n_ever_found_faces == 2) // no faces found but two in all runns so keep last positions
 		{
-			found_faces.push_back(ImVec2(found_faces_last[0].x, found_faces_last[0].y));
-			found_faces.push_back(ImVec2(found_faces_last[1].x, found_faces_last[1].y));
+			found_faces.push_back(CamResult3D(found_faces_last[0].x, found_faces_last[0].y, found_faces_last[0].z));
+			found_faces.push_back(CamResult3D(found_faces_last[1].x, found_faces_last[1].y, found_faces_last[1].z));
 		}
 		else if (found_faces.size() == 1 && n_ever_found_faces == 2)  // single face found but two in all runns so keep last positions
 		{
 			// Distance check old face positionto newly found face position
-			float distanceNewFoundFaceToOldFoundFace0 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
-			float distanceNewFoundFaceToOldFoundFace1 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[1].x), 2) + pow((found_faces[0].y) - (found_faces_last[1].y), 2));
+			float distanceNewFoundFaceToOldFoundFace0 = vectorMagnitude(found_faces[0], found_faces_last[0]);//(float)sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
+			float distanceNewFoundFaceToOldFoundFace1 = vectorMagnitude(found_faces[0], found_faces_last[1]);//(float)sqrt(pow((found_faces[0].x) - (found_faces_last[1].x), 2) + pow((found_faces[0].y) - (found_faces_last[1].y), 2));
 			// if distance for face0 to face0 is longer swap the order
 			if (distanceNewFoundFaceToOldFoundFace0 > distanceNewFoundFaceToOldFoundFace1)
 			{
-				found_faces.push_back(ImVec2(found_faces[0].x, found_faces[0].y));
-				found_faces[0] = (ImVec2(found_faces_last[0].x, found_faces_last[0].y));
+				found_faces.push_back(CamResult3D(found_faces[0].x, found_faces[0].y, found_faces[0].z));
+				found_faces[0] = (CamResult3D(found_faces_last[0].x, found_faces_last[0].y, found_faces_last[0].z));
 			}
 			// if distance for face0 to face is longer keep the order 
 			else
 			{
-				found_faces.push_back(ImVec2(found_faces_last[1].x, found_faces_last[1].y));
+				found_faces.push_back(CamResult3D(found_faces_last[1].x, found_faces_last[1].y, found_faces_last[1].z));
 			}
 		}
 		else if (found_faces.size() == 2 && n_ever_found_faces == 2) // two faces found and two in all runns so keep last positions
 		{
 			// Distance check old face positionto newly found face position
-			float distanceNewFoundFaceToOldFoundFace0 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
-			float distanceNewFoundFaceToOldFoundFace1 = (float)sqrt(pow((found_faces[0].x) - (found_faces_last[1].x), 2) + pow((found_faces[0].y) - (found_faces_last[1].y), 2));
+			float distanceNewFoundFaceToOldFoundFace0 = vectorMagnitude(found_faces[0], found_faces_last[0]);//(float)sqrt(pow((found_faces[0].x) - (found_faces_last[0].x), 2) + pow((found_faces[0].y) - (found_faces_last[0].y), 2));
+			float distanceNewFoundFaceToOldFoundFace1 = vectorMagnitude(found_faces[0], found_faces_last[1]);//(float)sqrt(pow((found_faces[0].x) - (found_faces_last[1].x), 2) + pow((found_faces[0].y) - (found_faces_last[1].y), 2));
 			// if distance for face0 to face is longer swap the order 
 			if (distanceNewFoundFaceToOldFoundFace0 > distanceNewFoundFaceToOldFoundFace1)
 			{
-				ImVec2 temp(found_faces[0].x, found_faces[0].y);
-				found_faces[0].x = found_faces[1].x;
-				found_faces[0].y = found_faces[1].y;
-				found_faces[1].x = temp.x;
-				found_faces[1].y = temp.y;
+				CamResult3D temp(found_faces[0].x, found_faces[0].y, found_faces[0].z);
+				found_faces[0] = (CamResult3D(found_faces[1].x, found_faces[1].y, found_faces[1].z));
+				found_faces[1] = (CamResult3D(temp.x, temp.y, temp.z));
 			}
 		}
 	}

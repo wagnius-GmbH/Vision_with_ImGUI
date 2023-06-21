@@ -3,7 +3,7 @@
 #
 
 # Fügen Sie der ausführbaren Datei dieses Projekts eine Quelle hinzu.
-add_executable (${PROJECT_NAME} "main.cpp"  "header.h" "ImGui.hpp" "Enum.h" "Vision.hpp" "configuration/Version.h.in" "configuration/Version.h")
+add_executable (${PROJECT_NAME} "main.cpp"  "header.h" "DataStructures.hpp" "Enum.h"  "ImGui.hpp" "Vision.hpp" "configuration/Version.h.in" "configuration/Version.h")
 
 set(PROJECT_MAJOR_VERSION "0")
 set(PROJECT_MINOR_VERSION "3")

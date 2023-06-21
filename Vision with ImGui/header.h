@@ -36,7 +36,6 @@ using namespace std;
 // Project files
 #include "Enum.h"
 #include "configuration/Version.h"
-#include "DataStructures.hpp"
 
 // Suppress Visual Studio warnings
 #ifdef _MSC_VER

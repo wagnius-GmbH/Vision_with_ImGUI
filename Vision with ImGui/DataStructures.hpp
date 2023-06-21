@@ -1,3 +1,5 @@
+#include "header.h"
+
 /// <summary>
 /// struct to save int dimensions (pixels)
 /// </summary>
@@ -21,7 +23,17 @@ struct Point2D {
 	constexpr Point2D(float _x, float _y) : x(_x), y(_y) { }
 	constexpr size_t size() const { return 2; }
 	int& operator[] (size_t idx) { assert(idx == 0 || idx == 1); return reinterpret_cast<int*>(this)[idx]; }
-	int operator[] (size_t idx) const { assert(idx == 0 || idx == 1); return reinterpret_cast<const int*>(this)[idx]; }
+	int  operator[] (size_t idx) const { assert(idx == 0 || idx == 1); return reinterpret_cast<const int*>(this)[idx]; }
+};
+
+
+struct CamResult3D{
+	float x, y, z;
+	constexpr CamResult3D() : x(0.0f), y(0.0f),  z(0.0f) { }
+	constexpr CamResult3D(float _x, float _y,float _z) : x(_x), y(_y), z(_z)  { }
+	constexpr size_t size() const { return 3; }
+	int& operator[] (size_t idx) { assert(idx == 0 || idx == 1); return reinterpret_cast<int*>(this)[idx]; }
+	int  operator[] (size_t idx) const { assert(idx == 0 || idx == 1); return reinterpret_cast<const int*>(this)[idx]; }
 };
 
 /// <summary>
@@ -70,3 +82,23 @@ struct RollingBuffer {
 		Data.push_back(ImVec2(xmod, y));
 	}
 };
+
+
+
+inline const char* convertStringToConstChar(const std::string& str) {
+	return str.c_str();
+}
+
+inline std::string convertIntToString(int number) {
+	return std::to_string(number);
+}
+
+inline float vectorMagnitude(CamResult3D& found_faces, CamResult3D& found_faces_last)
+{
+	float temp = (float)sqrt(
+		pow((found_faces.x) - (found_faces_last.x), 2) + 
+		pow((found_faces.y) - (found_faces_last.y), 2) + 
+		pow((found_faces.z) - (found_faces_last.z), 2)
+	);
+	return temp;
+}
