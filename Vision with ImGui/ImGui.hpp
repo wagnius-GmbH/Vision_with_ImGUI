@@ -18,9 +18,6 @@ private:
 	facedetection facedetectionCam0;
 	Point2D lastPos1, lastPos2;
 
-	int cnt1 = 0;
-	int cnt2 = 0;
-
 public:
 
 	CameraClass cam_access0;
