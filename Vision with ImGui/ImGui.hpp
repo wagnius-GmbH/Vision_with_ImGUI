@@ -74,7 +74,6 @@ public:
 	void Update() {
 		// Webcam frames
 		cam_access0.readFrame();
-
 		ShowFaceDetection();
 		ShowVideo();
 		ShowPicture();
@@ -148,25 +147,28 @@ public:
 		// Actual vision results
 		static float x[n_faces];
 		static float y[n_faces];
+		static float z[n_faces];
+		float by[] = { 0.0f, 0.0f, 0.0f };
 		static ScrollingBuffer faceTrace1(n_points);
 		static ScrollingBuffer faceTrace2(n_points);
 		// get actuall face positions from detection
-		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
+		for (int ii = 0; ii < (int)facedetectionCam0.found_faces.size(); ii++)
 		{
-			x[ii] = (float)facedetectionCam0.found_faces[ii].x;
-			y[ii] = -(float)facedetectionCam0.found_faces[ii].y;
+			x[ii] =  facedetectionCam0.found_faces[ii].x;
+			y[ii] = -facedetectionCam0.found_faces[ii].y;
+			by[ii] = facedetectionCam0.found_faces[ii].z;
 		}
 		// store actual face positions to buffer
 		if (facedetectionCam0.n_ever_found_faces > 0) 
-			faceTrace1.AddPoint((float)facedetectionCam0.found_faces[0].x, -(float)facedetectionCam0.found_faces[0].y);
+			faceTrace1.AddPoint(facedetectionCam0.found_faces[0].x, -facedetectionCam0.found_faces[0].y);
 		if (facedetectionCam0.n_ever_found_faces > 1) 
 		{
-			faceTrace1.AddPoint((float)facedetectionCam0.found_faces[0].x, -(float)facedetectionCam0.found_faces[0].y);
-			faceTrace2.AddPoint((float)facedetectionCam0.found_faces[1].x, -(float)facedetectionCam0.found_faces[1].y);
+			faceTrace1.AddPoint(facedetectionCam0.found_faces[0].x, -facedetectionCam0.found_faces[0].y);
+			faceTrace2.AddPoint(facedetectionCam0.found_faces[1].x, -facedetectionCam0.found_faces[1].y);
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////////
-		// Show actually detected facedetection in Plot
-		ImGui::Begin("Facedetection");
+		// Show actually detected facedetection in x/y Plot
+		ImGui::Begin("Facedetection with dept estimation");
 		if (ImGui::Button("Remove a Face")) {
 			if (facedetectionCam0.n_ever_found_faces > 0) {
 				facedetectionCam0.n_ever_found_faces--;
@@ -177,6 +179,11 @@ public:
 			if (facedetectionCam0.n_ever_found_faces > 0) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 20);
 				ImPlot::PlotScatter("Face 1", &x[0], &y[0], 1, ImPlotLineFlags_Segments);
+				//Z-Estimation as annotation text
+				for (int ii = 0; ii < n_faces; ii++)
+				{
+					ImPlot::Annotation(x[ii], y[ii], ImVec4(0, 0, 0, 0), ImVec2(0, -5), true, "face%.0f z=%.0f", ii, by[ii]);
+				}
 			}
 			if (facedetectionCam0.n_ever_found_faces > 1) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 20);
@@ -185,7 +192,7 @@ public:
 			ImPlot::EndPlot();
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////////
-		// Show face Motion trace in Plot
+		// Show face Motion trace in x/y Plot
 		if (ImPlot::BeginPlot("Face tracking")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			if (facedetectionCam0.n_ever_found_faces > 0) {

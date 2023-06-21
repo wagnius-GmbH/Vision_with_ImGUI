@@ -102,3 +102,12 @@ inline float vectorMagnitude(CamResult3D& found_faces, CamResult3D& found_faces_
 	);
 	return temp;
 }
+
+inline void printCamResultVector(vector<CamResult3D>& found_faces)
+{
+	for (int ii = 0; ii < found_faces.size(); ii++)
+	{
+		cout << "face " << ii << " x: " << found_faces[ii].x << "  y: " << found_faces[ii].y << "  z: " << found_faces[ii].z << endl;
+	}
+	
+}
