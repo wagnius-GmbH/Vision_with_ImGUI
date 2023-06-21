@@ -154,15 +154,17 @@ public:
 		static float x[n_faces];
 		static float y[n_faces];
 
-		static int size = n_points / 2;
-		static ScrollingBuffer faceTrace(n_points);
+		static int size = n_points;
+		static ScrollingBuffer faceTrace1(n_points);
+		static ScrollingBuffer faceTrace2(n_points);
 
 		// get actuall face positions from detection and store in buffer
 		for (int ii = 0; ii < facedetectionCam0.found_faces.size(); ii++)
 		{
 			x[ii] =  (float)facedetectionCam0.found_faces[ii].x;
 			y[ii] = -(float)facedetectionCam0.found_faces[ii].y;
-			faceTrace.AddPoint ((float)facedetectionCam0.found_faces[ii].x, -(float)facedetectionCam0.found_faces[ii].y);
+			faceTrace1.AddPoint((float)facedetectionCam0.found_faces[ii].x, -(float)facedetectionCam0.found_faces[ii].y);
+			faceTrace2.AddPoint((float)facedetectionCam0.found_faces[ii].x, -(float)facedetectionCam0.found_faces[ii].y);
 		}
 		
 		// Show actually detected facedetection in Plot
@@ -172,9 +174,11 @@ public:
 		if (ImPlot::BeginPlot("Actuall face Position")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
-			ImPlot::PlotScatter("Face 1", &x[0], &y[0], n_points, ImPlotLineFlags_Segments);
-			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
-			ImPlot::PlotScatter("Face 2", &x[1], &y[1], n_points, ImPlotLineFlags_Segments);
+			ImPlot::PlotScatter("Face 1", &x[0], &y[0], 1, ImPlotLineFlags_Segments);
+			if (facedetectionCam0.found_faces.size() > 1) {
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(2), IMPLOT_AUTO, ImPlot::GetColormapColor(2));
+				ImPlot::PlotScatter("Face 2", &x[1], &y[1], 1, ImPlotLineFlags_Segments);
+			}
 			ImPlot::EndPlot();
 		}
 
@@ -183,55 +187,10 @@ public:
 
 		if (ImPlot::BeginPlot("##Scrolling")) {
 			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
-			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
-			ImPlot::PlotScatter("Facetrace", &faceTrace.Data[0].x, &faceTrace.Data[0].y, faceTrace.Data.size(), 0, faceTrace.Offset, 2 * sizeof(float));
-			ImPlot::EndPlot();
-		}
-
-		static float xs1[n_points], ys1[n_points];
-		static float xs2[n_points], ys2[n_points];
-
-		// push to diagram 
-		if (facedetectionCam0.found_faces.size() == 1) 
-		{
-			xs1[cnt1] =  (float)facedetectionCam0.found_faces[0].x;
-			ys1[cnt1] = -(float)facedetectionCam0.found_faces[0].y;
-			lastPos1.x = xs1[cnt1];
-			lastPos1.y = ys1[cnt1];
-			cnt1++;
-		}
-		else if (facedetectionCam0.found_faces.size() == 2)
-		{
-			xs1[cnt1] =  (float)facedetectionCam0.found_faces[0].x;
-			ys1[cnt1] = -(float)facedetectionCam0.found_faces[0].y;
-			xs2[cnt2] =  (float)facedetectionCam0.found_faces[1].x;
-			ys2[cnt2] = -(float)facedetectionCam0.found_faces[1].y;
-			lastPos1.x = xs1[cnt1];
-			lastPos1.y = ys1[cnt1];
-			lastPos2.x = xs2[cnt2];
-			lastPos2.y = ys2[cnt2];
-			cnt1++;
-			cnt2++;
-		}	
-		
-		if (cnt1 > 20) 
-			cnt1 = 0;
-		
-		if (cnt2 > 20)
-			cnt2 = 0;
-
-		/*
-		for (int ii = 0; ii < 20; ii++)
-		{
-			cout << "xs1: " << xs1[ii] << " ys1: " << ys1[ii] << "xs2: " << xs2[ii] << " ys2: " << ys2[ii] << endl;
-		}
-		*/
-
-		if (ImPlot::BeginPlot("Show motion trace")) {
-			ImPlot::SetupAxesLimits(0, double(frameWidth), 0, -double(frameHeight));
-			ImPlot::PushStyleVar(ImPlotStyleVar_Marker, ImPlotMarker_None);
-			ImPlot::PlotScatter("Face 1", xs1, ys1, size);
-			ImPlot::PlotScatter("Face 2", xs2, ys2, size);
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6);
+			ImPlot::PlotScatter("Facetrace", &faceTrace1.Data[0].x, &faceTrace1.Data[0].y, size, 0, faceTrace1.Offset, 2 * sizeof(float));
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 6);
+			ImPlot::PlotScatter("Facetrace", &faceTrace2.Data[0].x, &faceTrace2.Data[0].y, size, 0, faceTrace2.Offset, 2 * sizeof(float));
 			ImPlot::EndPlot();
 		}
 		ImGui::End();
