@@ -255,10 +255,7 @@ public:
 		n_ever_found_faces_last = 0;
 	}
 
-	/// <summary>
-	/// find faces store information 
-	/// </summary>
-	/// <param name="img"></param>
+	/// find faces up to two faces and provide X/Y Position for the found faces
 	void detectAndDraw(cv::Mat& img)
 	{	// Detection
 		vector<cv::Rect> faces;
