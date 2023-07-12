@@ -148,7 +148,7 @@ public:
 		static float x[n_faces];
 		static float y[n_faces];
 		static float z[n_faces];
-		float by[] = { 0.0f, 0.0f, 0.0f };
+		float by[] = { 0.0f, 0.0f };
 		static ScrollingBuffer faceTrace1(n_points);
 		static ScrollingBuffer faceTrace2(n_points);
 		// get actuall face positions from detection
@@ -179,15 +179,13 @@ public:
 			if (facedetectionCam0.n_ever_found_faces > 0) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 20);
 				ImPlot::PlotScatter("Face 1", &x[0], &y[0], 1, ImPlotLineFlags_Segments);
-				//Z-Estimation as annotation text
-				for (int ii = 0; ii < n_faces; ii++)
-				{
-					ImPlot::Annotation(x[ii], y[ii], ImVec4(0, 0, 0, 0), ImVec2(0, -5), true, "face%.0f z=%.0f", ii, by[ii]);
-				}
+				ImPlot::Annotation(x[0], y[0], ImVec4(0, 0, 0, 0), ImVec2(0, -5), true, "face0 z=%.0f", by[0]);
 			}
 			if (facedetectionCam0.n_ever_found_faces > 1) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross, 20);
 				ImPlot::PlotScatter("Face 2", &x[1], &y[1], 1, ImPlotLineFlags_Segments);
+				ImPlot::Annotation(x[0], y[0], ImVec4(0, 0, 0, 0), ImVec2(0, -5), true, "face0 z=%.0f", by[0]);
+				ImPlot::Annotation(x[1], y[1], ImVec4(0, 0, 0, 0), ImVec2(0, -5), true, "face1 z=%.0f", by[1]);
 			}
 			ImPlot::EndPlot();
 		}
