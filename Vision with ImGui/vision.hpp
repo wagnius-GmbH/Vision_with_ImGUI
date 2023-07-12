@@ -35,7 +35,7 @@ public:
 	}
 
 	/// <summary>
-	/// 
+	/// read a frame from a video source
 	/// </summary>
 	void readFrame() {
 		frame.release();
@@ -53,7 +53,7 @@ public:
 		}
 	}
 	/// <summary>
-	/// 
+	/// Get a frame from a video source
 	/// </summary>
 	/// <returns></returns>
 	cv::Mat getFrame() {
@@ -62,7 +62,7 @@ public:
 	}
 
 	/// <summary>
-	/// 
+	/// Resize a cv::Mat 
 	/// </summary>
 	/// <param name="x"></param>
 	/// <param name="y"></param>
@@ -70,7 +70,7 @@ public:
 		cv::resize(frame, frame, cv::Size(x, y));
 	}
 	/// <summary>
-	/// 
+	/// Display a cv::Mat
 	/// </summary>
 	void showImage() {
 		cv::Mat frame;
@@ -154,7 +154,7 @@ public:
 	}
 
 	/// <summary>
-	/// Convert CV::Mat to texture, used in imGui
+	/// Convert CV::Mat to texture
 	/// </summary>
 	/// <param name="image">image (single video frame)</param>
 	/// <param name="imageTexture">handel for GPU Allocated memory</param>
@@ -188,7 +188,7 @@ public:
 	}
 
 	/// <summary>
-	/// 
+	/// Resize an texture image
 	/// </summary>
 	/// <param name="new_width"></param>
 	/// <param name="new_height"></param>
