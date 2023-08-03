@@ -33,6 +33,9 @@ int main(int argc, const char** argv)
 	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, APP_NAME, NULL, NULL);
 	if (window == NULL)
 		return 1;
+
+
+
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
 
