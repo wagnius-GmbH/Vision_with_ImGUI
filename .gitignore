@@ -4,8 +4,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # remove all doxygen documentation
-html/*
-latex/*
+/html
+/latex
 
 # remove all created stuff by cmake for VisualStudio
 *.vcxproj
