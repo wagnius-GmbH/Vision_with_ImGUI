@@ -26,7 +26,9 @@ struct Point2D {
 	int  operator[] (size_t idx) const { assert(idx == 0 || idx == 1); return reinterpret_cast<const int*>(this)[idx]; }
 };
 
-
+/// <summary>
+/// structur for 3D CamResults
+/// </summary>
 struct CamResult3D{
 	float x, y, z;
 	constexpr CamResult3D() : x(0.0f), y(0.0f),  z(0.0f) { }
