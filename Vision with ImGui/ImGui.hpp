@@ -139,7 +139,7 @@ public:
 		ImGui::Text("pointer = %p", &textureCam0.imageTexture);
 		ImGui::SameLine();
 		ImGui::Text("size = %d x %d", frameWidth, frameHeight);
-		ImGui::Image((void*)(intptr_t)textureCam0.imageTexture, ImVec2(frameWidth, frameHeight));
+		ImGui::Image((ImTextureID)(intptr_t)textureCam0.imageTexture, ImVec2(frameWidth, frameHeight));
 		ImGui::End();
 	};
 
@@ -161,7 +161,7 @@ public:
 
 		ImGui::Text("pointer = %p", &image.imageTexture);
 		ImGui::Text("size = %d x %d",(int)window_Size_picture.x,(int)window_Size_picture.y);
-		ImGui::Image((void*)(intptr_t)image.imageTexture, ImVec2(window_Size_picture.x, window_Size_picture.y));
+		ImGui::Image((ImTextureID)(intptr_t)image.imageTexture, ImVec2(window_Size_picture.x, window_Size_picture.y));
 		ImGui::End();
 	}
 
