@@ -3,7 +3,7 @@
 #
 
 # Fügen Sie der ausführbaren Datei dieses Projekts eine Quelle hinzu.
-add_executable (${PROJECT_NAME} "Vision with ImGui.cpp"  "header.h" "ImGui.hpp" "Enum.h" "Vision.hpp" "configuration/Version.h.in" "configuration/Version.h")
+add_executable (${PROJECT_NAME} "Vision with ImGui.cpp"  "header.h" "ImGui.hpp" "Enum.h" "vision.hpp" "configuration/Version.h.in" "configuration/Version.h")
 
 
 set(PROJECT_MAJOR_VERSION "0")
@@ -45,8 +45,8 @@ message("************************************\n")
 # Install Logos/icons
 message("************************************")
 message("Image source = ${CMAKE_CURRENT_SOURCE_DIR}/Picts/wagnius.png")
-message("Image destiantion = ${CMAKE_CURRENT_BINARY_DIR}/picts/wagnius.png")
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/picts/wagnius.png  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/picts)
+message("Image destiantion = ${CMAKE_CURRENT_BINARY_DIR}/Picts/wagnius.png")
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Picts/wagnius.png  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Picts)
 message("************************************\n")
 
 # Install ini files
