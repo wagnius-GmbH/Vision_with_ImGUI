@@ -41,7 +41,6 @@ configure_file(
     @ONLY
 )
 
-
 message("\n************************************")
 message("Project directory = ${PROJECT_SOURCE_DIR}")
 message("************************************\n")
@@ -68,8 +67,14 @@ message("************************************\n")
 message("************************************")
 message("Vision source = ${CMAKE_CURRENT_SOURCE_DIR}/Vision/")
 message("Vision destiantion = ${CMAKE_CURRENT_BINARY_DIR}/Vision")
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_eye_tree_eyeglasses.xml"  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_frontalface_alt.xml"  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision)
+file(
+    COPY "${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_eye_tree_eyeglasses.xml"  
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision
+    )
+file(
+    COPY "${CMAKE_CURRENT_SOURCE_DIR}/Vision/haarcascade_frontalface_alt.xml"  
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Vision
+    )
 message("************************************\n")
 
 
