@@ -10,7 +10,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",      
-      "cmakeToolchain": "C:/src/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      "cmakeToolchain": "D:/vcpkg/scripts/buildsystems/vcpkg.cmake"
     },
     {
       "name": "mcvc-x64-Releas",
